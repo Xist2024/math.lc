@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>微积分交互式学习中心 | math.lc</title>
+    
+    <!-- 引入数学公式渲染库 KaTeX 的 CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <!-- 引入 KaTeX JS -->
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+    
+    <!-- 引入图表库 Plotly.js -->
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+
+    <!-- CLASSIC STYLE CSS -->
+    <style>
+        /* 经典风格：使用衬线字体、简洁的配色和清晰的间距 */
+        :root {
+            --primary-color: #0056b3; /* 标题栏蓝色背景 */
+            --secondary-color: #cc0000; /* 红色 */
+            --background-color: #ffffff;
+            --text-color: #333333;
+            --border-color: #cccccc;
+            --highlight-bg: #fffbe6; 
+            --theorem-color: #008000; 
+            /* 域名定制颜色 */
+            --domain-c-color: #FFD700; /* C 的颜色改为白色 */
+        }
+
+        body {
+            font-family: 'Times New Roman', Georgia, serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background-color: var(--background-color);
+            color: var(--text-color);
+        }
+
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        /* 移除 h1，只保留定制的 header-title */
+        header h1 {
+            display: none; 
+        }
+
+        /* 域名定制样式 - 显著增强 */
+        .header-title {
+            font-size: 2.5em; /* 增大字号 */
+            font-weight: 900;
+            margin-top: 10px;
+            font-family: 'Georgia', 'Times New Roman', serif; /* 经典衬线字体 */
+            color: white; 
+        }
+        .domain-l {
+            color: var(--secondary-color); /* L 的颜色保持红色 */
+            font-weight: 900;
+        }
+        .domain-c {
+            color: var(--domain-c-color); /* C 的颜色改为白色 */
+            font-weight: 900;
+        }
+
+
+        /* 导航标签页样式 */
+        nav {
+            margin-top: 15px; /* 标题与导航分隔 */
+        }
+        nav a {
+            color: white;
+            text-decoration: none;
+            margin: 0 15px;
+            font-weight: bold;
+            padding: 5px 10px;
+            border-bottom: 3px solid transparent;
+            transition: border-bottom 0.3s;
+            cursor: pointer; 
+        }
+
+        nav a.active-tab {
+            border-bottom: 3px solid #ffcc00; 
+        }
+        
+        main {
+            max-width: 1100px;
+            margin: 40px auto;
+            padding: 0 20px;
+            min-height: 80vh; 
+        }
+
+        .concept-module {
+            padding: 30px 0;
+            display: none; 
+            border: 1px solid var(--border-color);
+            padding: 20px;
+            margin-top: 10px;
+        }
+
+        .concept-module.active-page {
+            display: block; 
+        }
+        
+        /* 模块内小标题样式 */
+        .concept-module h3 {
+            color: #333;
+            font-style: italic;
+            border-bottom: 1px dashed var(--border-color);
+            padding-bottom: 5px;
+            margin-top: 30px;
+        }
+
+        .concept-module h2 {
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+        }
+        
+        /* 定理强调框 */
+        .theorem-box {
+            background-color: #e6ffe6; 
+            border: 2px solid var(--theorem-color);
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        .theorem-box h4 {
+            color: var(--theorem-color);
+            margin-top: 0;
+            font-size: 1.3em;
+        }
+        /* 历史/挑战内容区块样式 */
+        .content-box {
+            background-color: var(--highlight-bg);
+            border: 1px solid #ffcc00;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+
+        p {
+            margin-bottom: 15px;
+            font-size: 1.1em;
+        }
+        
+        /* 内联 LaTeX 框样式 */
+        .latex-box {
+            display: inline-block;
+            border: 1px solid #cce5ff; 
+            background-color: #e6f3ff; 
+            padding: 0 2px;
+            margin: 0 2px;
+            line-height: 1.5; 
+            border-radius: 3px;
+            font-weight: normal;
+            vertical-align: middle;
+        }
+
+        /* 交互区域布局 */
+        .interactive-area {
+            display: flex;
+            flex-direction: column; 
+            gap: 30px;
+            margin-top: 20px;
+            padding: 20px;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+
+        @media (min-width: 768px) {
+            .interactive-area {
+                flex-direction: row; 
+            }
+            .plot-container {
+                flex: 3; 
+                min-height: 400px;
+            }
+            .controls {
+                flex: 1; 
+                min-width: 200px;
+            }
+        }
+        
+        /* 其他样式保持不变 */
+        .plot-container { background-color: white; border: 1px solid #ddd; box-shadow: 2px 2px 5px rgba(0,0,0,0.05); }
+        .exercise-section { padding: 15px 0; }
+        .solution-toggle { background-color: var(--primary-color); color: white; border: none; padding: 8px 15px; margin-top: 10px; cursor: pointer; border-radius: 3px; }
+        .solution { border-left: 3px solid var(--secondary-color); padding-left: 10px; margin-top: 10px; display: none; }
+        p[data-katex] { display: block; text-align: center; font-size: 1.5em; padding: 10px 0; background-color: #f0f8ff; border: 1px dashed var(--primary-color); }
+        footer { text-align: center; padding: 20px; margin-top: 40px; border-top: 1px solid var(--border-color); color: #666; font-size: 0.9em; }
+    </style>
+</head>
+<body>
+    <header>
+        <!-- 移除 h1，只保留定制的 header-title -->
+        <div class="header-title">
+            <span style="font-weight: normal;">math.</span><span class="domain-l">l</span>earning<span class="domain-c">c</span>enter
+        </div>
+	<p style="margin-top: -15px; font-size: 1.1em; opacity: 0.8; color: white;">
+    math.lc 数学学习中心
+</p>
+        <nav>
+            <a id="tab-derivative" class="active-tab" onclick="switchPage('derivative')">导数 f'(x)</a>
+            <a id="tab-differential" onclick="switchPage('differential')">微分 dy</a>
+            <a id="tab-integral" onclick="switchPage('integral')">定积分 ∫ f(x) dx</a>
+        </nav>
+    </header>
+
+    <main>
+        <!-- ============================================== -->
+        <!-- 1. 导数模块 (Derivative) -->
+        <!-- ============================================== -->
+        <section id="derivative" class="concept-module active-page">
+            <h2>1. 导数 (Derivative)：变化率与切线斜率</h2>
+            
+            <!-- 历史背景 - 深度扩充 -->
+            <h3>历史背景：微积分的诞生及其争议</h3>
+            <div class="content-box">
+                <p>导数的概念源于 17 世纪科学界对<strong>瞬时变化</strong>的迫切需求，核心是要解决物理学中的<strong>瞬时速度</strong>和几何学中的<strong>曲线切线斜率</strong>两大难题。在伽利略和开普勒奠定运动学基础后，如何精确描述物体在某一时刻的速度成为了关键。</p>
+                <p><strong>艾萨克·牛顿</strong>（<span data-latex-inline="\text{Isaac Newton}"></span>）于 1665 年前后发展了<strong>“流数术”</strong>，他将变化的量称为“流量”(<span data-latex-inline="\text{fluent}"></span>)，而将变化率称为“流数”(<span data-latex-inline="\text{fluxion}"></span>)，并用小点符号 <span data-latex-inline="\dot{x}"></span> 来表示。牛顿主要关注物理应用，特别是万有引力理论的数学基础。</p>
+                <p>几乎同时，<strong>戈特弗里德·莱布尼茨</strong>（<span data-latex-inline="\text{Gottfried Leibniz}"></span>）提出了更具系统性和符号优势的微分概念。他引入了我们今天使用的 <span data-latex-inline="\frac{dy}{dx}"></span>（导数）和 <span data-latex-inline="\int"></span>（积分）符号，这些符号的简洁性极大地促进了微积分在欧洲大陆的传播和发展。然而，早期微积分建立在<strong>无穷小量</strong>这一含糊的概念上，直到 19 世纪，奥古斯丁·路易·柯西和卡尔·魏尔斯特拉斯才通过<strong>极限理论</strong>，为导数和微分提供了严格的数学定义，彻底解决了“无穷小量”的逻辑争议。</p>
+            </div>
+            
+            <!-- 核心交互图表：割线逼近切线 -->
+            <h3>核心交互：割线逼近瞬时变化率</h3>
+            <p>导数的几何定义是<strong>切线斜率</strong>，它通过割线斜率的极限过程来精确捕获。割线斜率 <span data-latex-inline="\frac{f(x+h) - f(x)}{h}"></span> 代表了函数在 <span data-latex-inline="[x, x+h]"></span> 区间的<strong>平均变化率</strong>。当您在图中拖动滑块确定切点 <span data-latex-inline="x"></span> 时，图示的割线基于一个固定的微小 <span data-latex-inline="h"></span>。想象一下，当 <span data-latex-inline="h"></span> 逐渐趋近于零时，割线就会紧密地“吻合”曲线，最终转化为切线，其斜率即为该点的<strong>瞬时变化率</strong>。</p>
+            
+            <div class="interactive-area">
+                <div id="derivative-plot" class="plot-container"></div>
+                <div class="controls">
+                    <label for="point-x">选择切点 $x$:</label>
+                    <input type="range" id="point-x" min="-4" max="4" value="1" step="0.1">
+                    <span id="x-value-display">x = 1.0</span>
+                    <p>观察切线和割线如何在高阶函数 <span data-latex-inline="f(x) = 0.5x^2+1"></span> 上逼近。</p>
+                </div>
+            </div>
+
+            <h3>数学定义：</h3>
+            <p data-katex="\text{f'(x)} = \lim_{h \to 0} \frac{f(x+h) - f(x)}{h}"></p>
+            
+            <!-- 新增定理：罗尔定理 -->
+            <h3>定理与推论：罗尔定理 (Rolle's Theorem)</h3>
+            <div class="theorem-box">
+                <h4>罗尔定理 (Rolle's Theorem)</h4>
+                <p>罗尔定理是微分中值定理的一个特例。它指出，如果函数 <span data-latex-inline="f(x)"></span> 在闭区间 <span data-latex-inline="[a, b]"></span> 上连续，在开区间 <span data-latex-inline="(a, b)"></span> 内可导，并且函数在端点处的值相等（<span data-latex-inline="f(a) = f(b)"></span>），那么在开区间 <span data-latex-inline="(a, b)"></span> 内至少存在一点 <span data-latex-inline="c"></span>，使得该点的导数为零：</p>
+                <p data-katex="f'(c) = 0"></p>
+                <p>几何意义是：在函数曲线与水平线交于两点的情况下，曲线在两点之间至少有一个**水平切线**（即极值点）。</p>
+            </div>
+
+
+            <!-- MVT 交互图表 -->
+            <h3>定理演示：微分中值定理 (MVT)</h3>
+            <p>通过下方图表，改变区间端点 <span data-latex-inline="a"></span> 和 <span data-latex-inline="b"></span>，定理保证在 <span data-latex-inline="a"></span> 和 <span data-latex-inline="b"></span> 之间，一定存在一条与割线平行的切线（即导数值相等）。</p>
+            <div class="interactive-area">
+                <div id="mvt-plot" class="plot-container"></div>
+                <div class="controls">
+                    <label for="mvt-a">选择端点 $a$:</label>
+                    <input type="range" id="mvt-a" min="-4" max="1" value="-3" step="0.1">
+                    <span id="mvt-a-display">a = -3.0</span>
+                    <label for="mvt-b">选择端点 $b$:</label>
+                    <input type="range" id="mvt-b" min="1.1" max="4" value="3" step="0.1">
+                    <span id="mvt-b-display">b = 3.0</span>
+                </div>
+            </div>
+
+            <!-- 习题与解析 -->
+            <div class="exercise-section">
+                <h3>习题与解析</h3>
+                <p><strong>练习 1.1：</strong> 求函数 <span data-latex-inline="f(x) = 3x^2 - 5x"></span> 在 <span data-latex-inline="x=2"></span> 处的导数。</p>
+                <button class="solution-toggle" onclick="toggleSolution('deriv-ex1')">查看解析</button>
+                <div id="deriv-ex1" class="solution">
+                    <p>解：首先使用导数基本公式求出一般导数：<span data-latex-inline="f'(x) = 6x - 5"></span>。这一表达式给出了曲线上任意一点的切线斜率。然后，代入特定点 <span data-latex-inline="x=2"></span>，得到 <span data-latex-inline="f'(2) = 6(2) - 5 = 12 - 5 = 7"></span>。因此，在该点的切线斜率为 7。</p>
+                </div>
+            </div>
+
+            <!-- 超难例题 -->
+            <h3>挑战例题：洛必达法则的几何证明与应用</h3>
+            <div class="content-box">
+                <p>洛必达法则 (<span data-latex-inline="\text{L'Hôpital's Rule}"></span>) 是处理 <span data-latex-inline="\frac{0}{0}"></span> 或 <span data-latex-inline="\frac{\infty}{\infty}"></span> 不定式极限的强大工具。其几何原理可以追溯到广义中值定理，即 <strong>柯西中值定理</strong>。它告诉我们，在接近交点 <span data-latex-inline="a"></span> 附近，两个函数 <span data-latex-inline="f(x)"></span> 和 <span data-latex-inline="g(x)"></span> 的比值 <span data-latex-inline="\frac{f(x)}{g(x)}"></span> 约等于它们切线斜率的比值 <span data-latex-inline="\frac{f'(x)}{g'(x)}"></span>。</p>
+                <p><strong>例题：</strong> 计算极限 <span data-latex-inline="\lim_{x \to 0} \frac{\sin(x)}{x}"></span>。当 <span data-latex-inline="x \to 0"></span> 时，直接代入得到 <span data-latex-inline="\frac{0}{0}"></span> 不定式。</p>
+                <p>解析：使用洛必达法则，分别对分子和分母求导：<span data-latex-inline="\lim_{x \to 0} \frac{\cos(x)}{1}"></span>。代入 <span data-latex-inline="x=0"></span> 得到 <span data-latex-inline="\frac{\cos(0)}{1} = \frac{1}{1} = 1"></span>。图表显示 <span data-latex-inline="\sin(x)"></span> 的曲线在原点附近被直线 <span data-latex-inline="y=x"></span> (斜率为 1 的切线) 完美近似，因此极限为 1。</p>
+                <div id="deriv-challenge-plot" class="plot-container" style="min-height: 300px;"></div>
+            </div>
+        </section>
+
+        <!-- ============================================== -->
+        <!-- 2. 微分模块 (Differential) -->
+        <!-- ============================================== -->
+        <section id="differential" class="concept-module">
+            <h2>2. 微分 (Differential)：线性近似与误差</h2>
+            
+            <!-- 历史背景 - 深度扩充 -->
+            <h3>历史背景：从“无穷小”到“线性近似”</h3>
+            <div class="content-box">
+                <p>在牛顿和莱布尼茨的时代，微分 <span data-latex-inline="dy"></span> 被视为函数 <span data-latex-inline="\Delta y"></span> 的“主部”，是比 <span data-latex-inline="\Delta x"></span> 更高阶的无穷小量。然而，这种对“无穷小量”的操作方式缺乏严格的逻辑基础，被贝克莱主教等哲学家批评为“已故量之鬼魂”。</p>
+                <p>现代微积分中，微分 <span data-latex-inline="dy"></span> 被重新定义为<strong>线性近似</strong>。我们不再将 <span data-latex-inline="dx"></span> 视为一个无穷小的数，而是将其视为一个<strong>任意小的，非零的增量</strong>，而 <span data-latex-inline="dy"></span> 则是函数在切线上对应的变化。这种方法回避了对“无穷小量”的哲学争论，将微分的重点放在了<strong>局部线性化</strong>和<strong>误差估算</strong>的强大应用上。这种线性近似在物理建模、数值分析和金融工程中至关重要。</p>
+            </div>
+
+            <!-- 核心交互图表：线性近似与误差 -->
+            <h3>核心交互：线性近似与误差</h3>
+            <p>微分 <span data-latex-inline="dy = f'(x) dx"></span> 是基于切线的变化，而 <span data-latex-inline="\Delta y = f(x+dx) - f(x)"></span> 是函数的实际变化。当您拖动 <span data-latex-inline="dx"></span> 滑块时，观察 <span data-latex-inline="dy"></span> 和 <span data-latex-inline="\Delta y"></span> 的差异。这个差异，即误差 <span data-latex-inline="\Delta y - dy"></span>，在 <span data-latex-inline="dx"></span> 较小时，其大小远小于 <span data-latex-inline="dx"></span> 本身，证明了线性近似的有效性。</p>
+            
+            <div class="interactive-area">
+                 <div id="differential-plot" class="plot-container"></div>
+                 <div class="controls">
+                    <label for="delta-x">选择 $\Delta x$ (或 $dx$):</label>
+                    <input type="range" id="delta-x" min="0.1" max="2" value="1" step="0.1">
+                    <span id="dx-value-display">dx = 1.0</span>
+                    <p>当 <span data-latex-inline="dx"></span> 减小时，红色的误差线 (<span data-latex-inline="\Delta y - dy"></span>) 会迅速收缩。</p>
+                </div>
+            </div>
+            
+            <h3>数学关系：</h3>
+            <p data-katex="dy = f'(x) dx"></p>
+            
+            <!-- 新增定理：泰勒多项式 -->
+            <h3>定理与推论：泰勒多项式——超越线性近似</h3>
+            <div class="theorem-box">
+                <h4>泰勒多项式 (Taylor Polynomials) 的定义与应用</h4>
+                <p>线性近似只使用了函数在一点的零阶信息 (<span data-latex-inline="f(a)"></span>) 和一阶信息 (<span data-latex-inline="f'(a)"></span>)。泰勒多项式则是将这一思想推广，利用函数在同一点的<strong>高阶导数</strong>来构造多项式，从而在更大范围内逼近原函数。</p>
+                <p>1 阶泰勒多项式就是线性近似：<span data-latex-inline="P_1(x) = f(a) + f'(a)(x-a)"></span>。</p>
+                <p>高阶多项式：</p>
+                <p data-katex="P_n(x) = f(a) + f'(a)(x-a) + \frac{f''(a)}{2!}(x-a)^2 + \dots + \frac{f^{(n)}(a)}{n!}(x-a)^n"></p>
+            </div>
+
+            <!-- 泰勒多项式交互图表 -->
+            <p>通过改变阶数 $n$，观察高阶多项式 <span data-latex-inline="P_n(x)"></span> 如何更精确地逼近目标函数 <span data-latex-inline="f(x) = \sin(x)"></span>。随着阶数增加，泰勒曲线与正弦曲线重合的区域会不断扩大。</p>
+            <div class="interactive-area">
+                <div id="taylor-plot" class="plot-container"></div>
+                <div class="controls">
+                    <label for="taylor-n">选择多项式阶数 $n$:</label>
+                    <input type="range" id="taylor-n" min="1" max="5" value="3" step="2">
+                    <span id="taylor-n-display">n = 3 (3阶)</span>
+                    <p>注：此图是在 <span data-latex-inline="a=0"></span> 处展开的麦克劳林级数（<span data-latex-inline="\text{Maclaurin Series}"></span>）。</p>
+                </div>
+            </div>
+
+            <!-- 习题与解析 -->
+            <div class="exercise-section">
+                <h3>习题与解析</h3>
+                <p><strong>练习 2.1：</strong> 利用微分估算 <span data-latex-inline="\sqrt{9.03}"></span> 的值。已知 <span data-latex-inline="f(x) = \sqrt{x}"></span>，取 <span data-latex-inline="x=9"></span>，<span data-latex-inline="dx=0.03"></span>。</p>
+                <button class="solution-toggle" onclick="toggleSolution('diff-ex1')">查看解析</button>
+                <div id="diff-ex1" class="solution">
+                    <p>解：线性近似的基础是 <span data-latex-inline="f(x+dx) \approx f(x) + f'(x) dx"></span>。<br>
+                    首先求导数：<span data-latex-inline="f'(x) = \frac{1}{2\sqrt{x}}"></span>。<br>
+                    在 <span data-latex-inline="x=9"></span> 处，<span data-latex-inline="f'(9) = \frac{1}{2\sqrt{9}} = \frac{1}{6}"></span>。<br>
+                    微分项：<span data-latex-inline="dy = f'(9) dx = \frac{1}{6} (0.03) = 0.005"></span>。<br>
+                    近似值：<span data-latex-inline="\sqrt{9.03} \approx f(9) + dy = 3 + 0.005 = 3.005"></span>。实际精确值约为 3.004995，误差极小。</p>
+                </div>
+            </div>
+            
+            <!-- 新增内容：链式法则的几何解释 -->
+            <h3>深入理解：链式法则的几何解释</h3>
+            <div class="content-box">
+                <p>链式法则 <span data-latex-inline="\frac{dy}{dx} = \frac{dy}{du} \cdot \frac{du}{dx}"></span> 是复合函数求导的核心规则。在微分的语言中，它具有非常直观的几何意义。如果 <span data-latex-inline="y"></span> 随 <span data-latex-inline="u"></span> 变化，而 <span data-latex-inline="u"></span> 又随 <span data-latex-inline="x"></span> 变化，那么 <span data-latex-inline="y"></span> 随 <span data-latex-inline="x"></span> 的变化率（<span data-latex-inline="\frac{dy}{dx}"></span>）就是两个独立变化率的乘积。</p>
+                <p>我们可以将 <span data-latex-inline="dy \approx \frac{dy}{du} du"></span> 和 <span data-latex-inline="du \approx \frac{du}{dx} dx"></span> 视为线性近似，代入可得 <span data-latex-inline="dy \approx \frac{dy}{du} (\frac{du}{dx} dx)"></span>。这表明，<span data-latex-inline="y"></span> 的微小变化是两个线性过程累积的结果。在实际应用中，例如计算三维空间中曲线的坡度，链式法则将复杂问题分解为多步简单的局部变化率计算。</p>
+            </div>
+
+
+            <!-- 超难例题 -->
+            <h3>挑战例题：圆柱体积误差传递与不确定度分析</h3>
+            <div class="content-box">
+                <p>微分在测量科学中用于不确定度分析（<span data-latex-inline="\text{Propagation of Error}"></span>）。如果对圆柱的半径 $r$ 和高 $h$ 的测量都存在 <span data-latex-inline="\pm 1\%"></span> 的相对误差，我们如何估算体积 $V$ 的最大相对误差？</p>
+                <p>圆柱体积公式：<span data-latex-inline="\text{V = \pi r^2 h}"></span>。首先求全微分：<span data-latex-inline="dV = \frac{\partial V}{\partial r} dr + \frac{\partial V}{\partial h} dh = 2\pi rh dr + \pi r^2 dh"></span>。</p>
+                <p>解析：将全微分表达式除以 <span data-latex-inline="V"></span>，得到相对误差：<span data-latex-inline="\frac{dV}{V} = 2\frac{dr}{r} + \frac{dh}{h}"></span>。
+                最大相对误差是所有相对误差绝对值之和：<span data-latex-inline="\text{Max Error} = 2|\frac{dr}{r}| + |\frac{dh}{h}|"></span>。由于 <span data-latex-inline="|\frac{dr}{r}| = 0.01"></span> 且 <span data-latex-inline="|\frac{dh}{h}| = 0.01"></span>，最大相对误差为 <span data-latex-inline="2(0.01) + 0.01 = 0.03"></span>，即 <span data-latex-inline="3\%"></span>。半径的误差对体积的影响是高度的两倍。</p>
+            </div>
+        </section>
+
+        <!-- ============================================== -->
+        <!-- 3. 积分模块 (Integral) -->
+        <!-- ============================================== -->
+        <section id="integral" class="concept-module">
+            <h2>3. 定积分 (Integral)：面积的累加与求和</h2>
+
+            <!-- 历史背景 - 深度扩充 -->
+            <h3>历史背景：穷竭法、极限与微积分基本定理</h3>
+            <div class="content-box">
+                <p>积分思想的历史比微分更悠久。古希腊的<strong>阿基米德</strong>（<span data-latex-inline="\text{Archimedes}"></span>）使用著名的<strong>穷竭法</strong>，通过在曲线内部和外部不断画内接和外切的多边形来逼近曲线下方的面积。这本质上就是<strong>黎曼和</strong>（<span data-latex-inline="\text{Riemann Sum}"></span>）和积分极限思想的早期形式。</p>
+                <p>到了 17 世纪，牛顿和莱布尼茨通过发现<strong>微积分基本定理</strong>（<span data-latex-inline="\text{FTC}"></span>）实现了数学上的革命。在此之前，求导和求面积是两个独立的、困难的数学问题。FTC 证明了它们是<strong>互逆操作</strong>，将求复杂的曲线下面积问题，转化为了求导数的逆过程——<strong>求原函数</strong>的简单代数问题。这使得微积分成为了一个统一且高效的工具。</p>
+            </div>
+
+            <!-- 核心交互图表：黎曼和逼近面积 -->
+            <h3>核心交互：黎曼和逼近面积</h3>
+            <p>定积分 <span data-latex-inline="\int_{a}^{b} f(x) dx"></span> 的几何意义是函数曲线与 <span data-latex-inline="x"></span> 轴之间，在区间 <span data-latex-inline="[a, b]"></span> 上的<strong>带符号面积</strong>。黎曼和通过将区间划分为 <span data-latex-inline="n"></span> 个小矩形，并对这些矩形面积求和来近似总面积。观察矩形数量 <span data-latex-inline="n"></span> 增加时，黎曼和 <span data-latex-inline="\sum_{i=1}^{n} f(x_i^*) \Delta x"></span> 如何逼近真实面积。</p>
+            
+            <div class="interactive-area">
+                <div id="integral-plot" class="plot-container"></div>
+                <div class="controls">
+                    <label for="num-rectangles">矩形数量 ($n$):</label>
+                    <input type="range" id="num-rectangles" min="4" max="50" value="10" step="1">
+                    <span id="n-value-display">n = 10</span>
+                </div>
+            </div>
+            
+            <h3>数学定义 (黎曼和):</h3>
+            <p data-katex="\int_{a}^{b} f(x) dx = \lim_{n \to \infty} \sum_{i=1}^{n} f(x_i^*) \Delta x"></p>
+
+            <!-- 新增定理：定积分的奇偶性性质 -->
+            <h3>定理与性质：定积分的奇偶性</h3>
+            <div class="theorem-box">
+                <h4>定积分的奇偶性性质</h4>
+                <p>如果函数 <span data-latex-inline="f(x)"></span> 在对称区间 <span data-latex-inline="[-a, a]"></span> 上连续，利用奇偶性可以简化积分计算：</p>
+                <ul>
+                    <li>如果 <span data-latex-inline="f(x)"></span> 是<strong>偶函数</strong>（<span data-latex-inline="f(-x) = f(x)"></span>），图像关于 $y$ 轴对称：<p data-katex="\int_{-a}^{a} f(x) dx = 2 \int_{0}^{a} f(x) dx"></p></li>
+                    <li>如果 <span data-latex-inline="f(x)"></span> 是<strong>奇函数</strong>（<span data-latex-inline="f(-x) = -f(x)"></span>），图像关于原点对称：<p data-katex="\int_{-a}^{a} f(x) dx = 0"></p></li>
+                </ul>
+                <p>这些性质在物理学（如质心计算）和概率论中非常实用，能显著减少计算量。</p>
+            </div>
+
+            <!-- 定理：积分中值定理 (MVT-I) -->
+            <h3>定理演示：积分中值定理</h3>
+            <div class="theorem-box">
+                <h4>积分中值定理 (Mean Value Theorem for Integrals)</h4>
+                <p>该定理是平均值概念在微积分中的体现。如果函数 <span data-latex-inline="f(x)"></span> 在闭区间 <span data-latex-inline="[a, b]"></span> 上连续，那么在 <span data-latex-inline="[a, b]"></span> 上至少存在一点 <span data-latex-inline="c"></span>，使得由高度 <span data-latex-inline="f(c)"></span> 构成的矩形面积正好等于曲线下方的积分面积。</p>
+                <p data-katex="\int_{a}^{b} f(x) dx = f(c)(b - a) \quad \text{或} \quad f_{\text{avg}} = \frac{1}{b-a} \int_{a}^{b} f(x) dx"></p>
+            </div>
+
+            <!-- MVT-I 交互图表 -->
+            <p>通过下方图表，观察平均值 <span data-latex-inline="f_{\text{avg}}"></span> 确定的矩形面积如何精确地与曲线下的积分面积相等。函数 <span data-latex-inline="f(x) = 2 + \cos(\pi x/4)"></span> 在区间 <span data-latex-inline="[1, 4]"></span> 上的平均值即为 <span data-latex-inline="f_{\text{avg}}"></span>。</p>
+            <div class="interactive-area">
+                <div id="mvti-plot" class="plot-container"></div>
+                <div class="controls">
+                    <p>平均值 $f_{\text{avg}}$ 形成的矩形（绿色填充区域）与积分（红色曲线下的面积）相等。</p>
+                    <span id="mvti-avg-display">f_avg: N/A</span>
+                </div>
+            </div>
+
+            <!-- 习题与解析 -->
+            <div class="exercise-section">
+                <h3>习题与解析</h3>
+                <p><strong>练习 3.1：</strong> 求定积分 <span data-latex-inline="\int_{0}^{2} (x^3 + 1) dx"></span> 的值。</p>
+                <button class="solution-toggle" onclick="toggleSolution('int-ex1')">查看解析</button>
+                <div id="int-ex1" class="solution">
+                    <p>解：根据微积分基本定理，我们首先求出原函数 <span data-latex-inline="F(x) = \frac{1}{4}x^4 + x"></span>。<br>
+                    然后，计算 <span data-latex-inline="F(2) - F(0)"></span>。<br>
+                    <span data-latex-inline="F(2) = \frac{1}{4}(2^4) + 2 = 4 + 2 = 6"></span>。<br>
+                    <span data-latex-inline="F(0) = \frac{1}{4}(0^4) + 0 = 0"></span>。<br>
+                    定积分的值为 <span data-latex-inline="6 - 0 = 6"></span>。</p>
+                </div>
+            </div>
+            
+            <!-- 超难例题 -->
+            <h3>挑战例题：积分的应用：曲线长度 (Arc Length)</h3>
+            <div class="content-box">
+                <p>定积分是求体积、做功、计算质心和计算曲线长度的核心工具。求函数 <span data-latex-inline="y = \frac{2}{3}x^{3/2}"></span> 在区间 <span data-latex-inline="[0, 3]"></span> 上的弧长 <span data-latex-inline="L"></span>。</p>
+                <p>弧长公式：<span data-latex-inline="L = \int_{a}^{b} \sqrt{1 + \left(\frac{dy}{dx}\right)^2} dx"></span></p>
+                <p>解析：
+                    首先求导数：<span data-latex-inline="\frac{dy}{dx} = x^{1/2}"></span>。
+                    平方并代入公式：<span data-latex-inline="L = \int_{0}^{3} \sqrt{1 + x} dx"></span>。
+                    使用换元法（<span data-latex-inline="u = 1+x"></span>）进行积分，最终计算得：<span data-latex-inline="L = \frac{2}{3} (4^{3/2} - 1^{3/2}) = \frac{14}{3}"></span>。</p>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 交互式微积分学习 | 纯静态网页实现</p>
+    </footer>
+
+    <!-- INTERACTIVE JAVASCRIPT LOGIC -->
+    <script>
+        // --- 1. 函数定义 ---
+        const f_deriv = x => 0.5 * x * x + 1; // y = 0.5x² + 1
+        const fPrime_deriv = x => x; // y' = x 
+        
+        // MVT 函数：用于微分中值定理演示
+        const f_mvt = x => x * x * x - 6 * x * x + 5; 
+        const fPrime_mvt = x => 3 * x * x - 12 * x; 
+
+        // 泰勒函数：用于泰勒多项式演示
+        const f_taylor = x => Math.sin(x);
+        const fPrime_taylor = x => Math.cos(x);
+        const fTriplePrime_taylor = x => -Math.cos(x);
+        const fPentaPrime_taylor = x => Math.cos(x);
+
+        // 泰勒多项式计算 (a=0)
+        const taylorPolynomial = (x, n) => {
+            let p = 0;
+            if (n >= 1) p += fPrime_taylor(0) / 1 * x;
+            if (n >= 3) p += fTriplePrime_taylor(0) / (6) * Math.pow(x, 3);
+            if (n >= 5) p += fPentaPrime_taylor(0) / (120) * Math.pow(x, 5); 
+            return p;
+        };
+        
+        // 积分函数：用于定积分和 MVT-I
+        const f_integral = x => 2 + Math.cos(x * Math.PI / 4); 
+        const integral_a = 0; 
+        const integral_b = 5; 
+        
+        const x_vals_default = Array.from({length: 101}, (_, i) => -5 + i * 0.1);
+        const y_vals_deriv = x_vals_default.map(f_deriv);
+        
+        const plotRendered = {
+            derivative: false, differential: false, integral: false,
+            challenge: false, mvt: false, taylor: false, mvti: false
+        };
+        
+        // 辅助函数：强制 Plots 重新布局 (修复隐藏后变白的问题)
+        function relayoutPlots(plotIds) {
+            plotIds.forEach(id => {
+                const plotDiv = document.getElementById(id);
+                if (plotDiv && plotDiv._fullLayout) { 
+                    Plotly.relayout(plotDiv, {}); 
+                }
+            });
+        }
+
+
+        // --- 2. 通用功能：KaTeX 渲染和页面切换 ---
+        function renderAllKatex() {
+            document.querySelectorAll('[data-katex]').forEach(function(element) {
+                katex.render(element.getAttribute('data-katex'), element, { throwOnError: false });
+            });
+
+            document.querySelectorAll('[data-latex-inline]').forEach(function(span) {
+                const latex = span.getAttribute('data-latex-inline');
+                const tempDiv = document.createElement('div');
+                katex.render(latex, tempDiv, { throwOnError: false, displayMode: false });
+                const wrapper = document.createElement('span');
+                wrapper.className = 'latex-box';
+                wrapper.innerHTML = tempDiv.innerHTML;
+                span.parentNode.replaceChild(wrapper, span);
+            });
+        }
+        
+        window.toggleSolution = function(id) {
+            const solutionDiv = document.getElementById(id);
+            solutionDiv.style.display = solutionDiv.style.display === 'block' ? 'none' : 'block';
+        }
+        
+        window.switchPage = function(pageId) {
+            document.querySelectorAll('.concept-module').forEach(page => {
+                page.classList.remove('active-page');
+            });
+            document.querySelectorAll('nav a').forEach(tab => {
+                tab.classList.remove('active-tab');
+            });
+
+            document.getElementById(pageId).classList.add('active-page');
+            document.getElementById(`tab-${pageId}`).classList.add('active-tab');
+
+            let currentPlots = [];
+
+            // 1. 确保图表在页面被激活时渲染 (只渲染一次)
+            if (pageId === 'derivative') {
+                if (!plotRendered.derivative) initDerivativePlot();
+                if (!plotRendered.challenge) initDerivativeChallengePlot();
+                if (!plotRendered.mvt) initMVTPlot();
+                currentPlots = ['derivative-plot', 'deriv-challenge-plot', 'mvt-plot'];
+            } else if (pageId === 'differential') {
+                if (!plotRendered.differential) initDifferentialPlot();
+                if (!plotRendered.taylor) initTaylorPlot();
+                currentPlots = ['differential-plot', 'taylor-plot'];
+            } else if (pageId === 'integral') {
+                if (!plotRendered.integral) initIntegralPlot();
+                if (!plotRendered.mvti) initMVTIPlot();
+                currentPlots = ['integral-plot', 'mvti-plot'];
+            }
+            
+            // 2. 强制 Plotly 重新布局，修复变白问题
+            setTimeout(() => {
+                relayoutPlots(currentPlots);
+            }, 50); 
+        }
+
+
+        // --- 3. 导数模块 (Derivative) ---
+        function initDerivativePlot() {
+            const plotDiv = document.getElementById('derivative-plot');
+            const xSlider = document.getElementById('point-x');
+            const xDisplay = document.getElementById('x-value-display');
+            
+            const updatePlot = () => {
+                const x0 = parseFloat(xSlider.value);
+                xDisplay.textContent = `x = ${x0.toFixed(1)}`;
+                const y0 = f_deriv(x0);
+                const slope = fPrime_deriv(x0);
+                const h_approx = 0.5; 
+                const x1_secant = x0 + h_approx;
+                const y1_secant = f_deriv(x1_secant);
+
+                const curveTrace = { x: x_vals_default, y: y_vals_deriv, mode: 'lines', name: '函数 y = 0.5x² + 1', line: {color: 'rgba(0, 0, 170, 0.8)', width: 3} };
+                const pointTrace = { x: [x0], y: [y0], mode: 'markers', name: `P(${x0.toFixed(1)}, ${y0.toFixed(1)})`, marker: {size: 10, color: 'var(--secondary-color)'} };
+                const tangent_x = [-6, 6];
+                const tangent_y = tangent_x.map(x => y0 + slope * (x - x0));
+                const tangentTrace = { x: tangent_x, y: tangent_y, mode: 'lines', name: '切线 (导数)', line: {color: 'var(--secondary-color)', dash: 'dash', width: 2} };
+                const secant_x = [x0, x1_secant];
+                const secant_y = [y0, y1_secant];
+                const secantTrace = { x: secant_x, y: secant_y, mode: 'lines', name: `割线 (h=${h_approx})`, line: {color: 'rgba(0, 150, 0, 0.6)', width: 1.5} };
+
+                const layout = {
+                    title: `导数 f'(${x0.toFixed(1)}) = ${slope.toFixed(1)})`,
+                    xaxis: {title: 'x 轴', range: [-5, 5]},
+                    yaxis: { title: 'y 轴', range: [0, 15], scaleanchor: "x", scaleratio: 1 }, 
+                    hovermode: 'closest', margin: {l: 50, r: 50, t: 50, b: 50}, autosize: true 
+                };
+
+                Plotly.newPlot(plotDiv, [curveTrace, pointTrace, secantTrace, tangentTrace], layout, {responsive: true});
+            };
+
+            xSlider.addEventListener('input', updatePlot);
+            updatePlot(); 
+            plotRendered.derivative = true;
+        }
+
+        // MVT 交互图表
+        function initMVTPlot() {
+            const plotDiv = document.getElementById('mvt-plot');
+            const aSlider = document.getElementById('mvt-a');
+            const bSlider = document.getElementById('mvt-b');
+            const aDisplay = document.getElementById('mvt-a-display');
+            const bDisplay = document.getElementById('mvt-b-display');
+
+            const x_vals = Array.from({length: 101}, (_, i) => -4 + i * 0.08);
+            const y_vals = x_vals.map(f_mvt);
+
+            const updatePlot = () => {
+                const a = parseFloat(aSlider.value);
+                const b = parseFloat(bSlider.value);
+                aDisplay.textContent = `a = ${a.toFixed(1)}`;
+                bDisplay.textContent = `b = ${b.toFixed(1)}`;
+
+                const f_a = f_mvt(a);
+                const f_b = f_mvt(b);
+                const secant_slope = (f_b - f_a) / (b - a);
+
+                // 寻找 c 点: 3c² - 12c - secant_slope = 0
+                const D = 144 - 4 * 3 * (-secant_slope); // Discriminant
+                let c_point = null;
+
+                if (D >= 0) {
+                    const c1 = (12 + Math.sqrt(D)) / 6;
+                    const c2 = (12 - Math.sqrt(D)) / 6;
+                    
+                    if (c1 > a && c1 < b) c_point = c1;
+                    else if (c2 > a && c2 < b) c_point = c2;
+                }
+                
+                const curveTrace = { x: x_vals, y: y_vals, mode: 'lines', name: '函数 f(x)', line: {color: 'rgba(0, 0, 170, 0.8)', width: 3} };
+                const secantTrace = { x: [a, b], y: [f_a, f_b], mode: 'lines', name: '割线', line: {color: 'rgba(0, 150, 0, 0.8)', width: 2} };
+                
+                let traces = [curveTrace, secantTrace];
+                let title = `微分中值定理: 割线斜率 = ${secant_slope.toFixed(2)}`;
+
+                if (c_point !== null) {
+                    const f_c = f_mvt(c_point);
+                    const tangent_x = [-4, 4];
+                    const tangent_y = tangent_x.map(x => f_c + secant_slope * (x - c_point));
+                    const tangentTrace = { x: tangent_x, y: tangent_y, mode: 'lines', name: '平行切线 (c)', line: {color: 'var(--secondary-color)', dash: 'dash', width: 2} };
+                    const cPointTrace = { x: [c_point], y: [f_c], mode: 'markers', name: `C (${c_point.toFixed(2)})`, marker: {size: 10, color: 'var(--secondary-color)'} };
+                    
+                    traces.push(tangentTrace, cPointTrace);
+                    title += `，找到 C 点: ${c_point.toFixed(2)}`;
+                }
+
+                const layout = {
+                    title: title,
+                    xaxis: {title: 'x 轴', range: [-4.5, 4.5]},
+                    yaxis: {title: 'y 轴', range: [-30, 15]},
+                    autosize: true 
+                };
+
+                Plotly.newPlot(plotDiv, traces, layout, {responsive: true});
+            };
+
+            aSlider.addEventListener('input', updatePlot);
+            bSlider.addEventListener('input', updatePlot);
+            updatePlot();
+            plotRendered.mvt = true;
+        }
+
+        function initDerivativeChallengePlot() {
+             Plotly.newPlot('deriv-challenge-plot', [
+                {
+                    x: Array.from({length: 101}, (_, i) => -1.5 + i * 0.03),
+                    y: Array.from({length: 101}, (_, i) => Math.sin(-1.5 + i * 0.03)),
+                    mode: 'lines',
+                    name: 'y = sin(x)',
+                    line: {color: 'blue'}
+                },
+                {
+                    x: [-1.5, 1.5],
+                    y: [-1.5, 1.5],
+                    mode: 'lines',
+                    name: 'y = x',
+                    line: {color: 'orange', dash: 'dash'}
+                }
+            ], {
+                title: '洛必达法则几何意义：y=sin(x) 与 y=x 在原点附近',
+                xaxis: {range: [-1.5, 1.5]},
+                yaxis: {range: [-1.5, 1.5], scaleanchor: "x", scaleratio: 1},
+                autosize: true
+            }, {responsive: true});
+             plotRendered.challenge = true;
+        }
+
+
+        // --- 4. 微分模块 (Differential) ---
+        function initDifferentialPlot() {
+            const plotDiv = document.getElementById('differential-plot');
+            const dxSlider = document.getElementById('delta-x');
+            const dxDisplay = document.getElementById('dx-value-display');
+            
+            const x0 = 1.0; 
+            const y0 = f_deriv(x0);
+            const slope = fPrime_deriv(x0);
+
+            const updatePlot = () => {
+                const dx = parseFloat(dxSlider.value);
+                dxDisplay.textContent = `dx = ${dx.toFixed(1)}`;
+                
+                const x_final = x0 + dx;
+                const y_final_actual = f_deriv(x_final);
+                const y_final_approx = y0 + slope * dx;
+
+                const delta_y = y_final_actual - y0;
+                const dy = y_final_approx - y0;
+
+                const curveTrace = { x: x_vals_default, y: y_vals_deriv, mode: 'lines', name: '函数 f(x)', line: {color: 'rgba(0, 0, 170, 0.8)', width: 3} };
+                const tangent_x = [x0 - 2, x0 + dx + 0.5];
+                const tangent_y = tangent_x.map(x => y0 + slope * (x - x0));
+                const tangentTrace = { x: tangent_x, y: tangent_y, mode: 'lines', name: '切线', line: {color: 'var(--primary-color)', dash: 'dot', width: 2} };
+                const deltaYTrace = { x: [x_final, x_final], y: [y_final_approx, y_final_actual], mode: 'lines', name: `Δy - dy (误差) = ${(delta_y - dy).toFixed(3)}`, line: {color: 'var(--secondary-color)', width: 3} };
+                const dyTrace = { x: [x_final, x_final], y: [y0, y_final_approx], mode: 'lines', name: `dy (微分) = ${dy.toFixed(2)}`, line: {color: 'rgba(0, 150, 0, 0.8)', width: 3, dash: 'dash'} };
+                const pointsTrace = { x: [x0, x_final], y: [y0, y_final_actual], mode: 'markers', name: 'P, Q', marker: {size: 10, color: 'black'} };
+
+                const layout = {
+                    title: `微分线性近似 (dx=${dx.toFixed(1)}), Δy≈dy`,
+                    xaxis: {title: 'x 轴', range: [-1, 5]},
+                    yaxis: { title: 'y 轴', range: [0, 8], scaleanchor: "x", scaleratio: 1 },
+                    hovermode: 'closest', margin: {l: 50, r: 50, t: 50, b: 50}, autosize: true
+                };
+
+                Plotly.newPlot(plotDiv, [curveTrace, tangentTrace, dyTrace, deltaYTrace, pointsTrace], layout, {responsive: true});
+            };
+
+            dxSlider.addEventListener('input', updatePlot);
+            updatePlot(); 
+            plotRendered.differential = true;
+        }
+
+        // 泰勒多项式交互图表
+        function initTaylorPlot() {
+            const plotDiv = document.getElementById('taylor-plot');
+            const nSlider = document.getElementById('taylor-n');
+            const nDisplay = document.getElementById('taylor-n-display');
+
+            const x_vals = Array.from({length: 201}, (_, i) => -5 + i * 0.05);
+            const y_sin = x_vals.map(f_taylor);
+            
+            const updatePlot = () => {
+                const n = parseInt(nSlider.value);
+                nDisplay.textContent = `n = ${n} (${n}阶)`;
+
+                const y_taylor = x_vals.map(x => taylorPolynomial(x, n));
+
+                const sinTrace = { x: x_vals, y: y_sin, mode: 'lines', name: 'f(x) = sin(x)', line: {color: 'var(--secondary-color)', width: 3} };
+                const taylorTrace = { x: x_vals, y: y_taylor, mode: 'lines', name: `P${n}(x) 泰勒多项式`, line: {color: 'var(--primary-color)', dash: 'dot', width: 2} };
+
+                const layout = {
+                    title: `泰勒多项式近似 f(x)=sin(x) (n=${n})`,
+                    xaxis: {title: 'x 轴', range: [-5, 5]},
+                    yaxis: {title: 'y 轴', range: [-2, 2]},
+                    autosize: true
+                };
+
+                Plotly.newPlot(plotDiv, [sinTrace, taylorTrace], layout, {responsive: true});
+            };
+
+            nSlider.addEventListener('input', updatePlot);
+            updatePlot();
+            plotRendered.taylor = true;
+        }
+
+
+        // --- 5. 定积分模块 (Integral) ---
+        function initIntegralPlot() {
+            const plotDiv = document.getElementById('integral-plot');
+            const nSlider = document.getElementById('num-rectangles');
+            const nDisplay = document.getElementById('n-value-display');
+
+            const x_vals_integral = Array.from({length: 101}, (_, i) => integral_a - 1 + i * (integral_b - integral_a + 2) / 100);
+            const y_vals_integral = x_vals_integral.map(f_integral);
+
+
+            const updatePlot = () => {
+                const n = parseInt(nSlider.value);
+                nDisplay.textContent = `n = ${n}`;
+                
+                const deltaX = (integral_b - integral_a) / n;
+                let sum = 0;
+                
+                const rect_x = [];
+                const rect_y = [];
+                
+                for (let i = 0; i < n; i++) {
+                    const x_i = integral_a + i * deltaX;
+                    const x_i_plus_1 = integral_a + (i + 1) * deltaX;
+                    const height = f_integral(x_i + deltaX / 2); // 中点求和 
+
+                    rect_x.push(x_i, x_i, x_i_plus_1, x_i_plus_1, x_i);
+                    rect_y.push(0, height, height, 0, 0);
+                    
+                    sum += height * deltaX;
+                }
+
+                const integralAreaTrace = { x: rect_x, y: rect_y, type: 'scatter', fill: 'toself', mode: 'lines', name: `黎曼和 (n=${n})`, fillcolor: 'rgba(173, 216, 230, 0.7)', line: {color: 'rgba(0, 0, 0, 0.4)', width: 0.5} };
+                const curveTrace = { x: x_vals_integral, y: y_vals_integral, mode: 'lines', name: '函数 f(x)', line: {color: 'var(--secondary-color)', width: 3} };
+                
+                const layout = {
+                    title: `定积分 (面积) 近似 (n=${n}, 近似值: ${sum.toFixed(3)})`,
+                    xaxis: {title: 'x 轴', range: [integral_a - 1, integral_b + 1]},
+                    yaxis: {title: 'y 轴', range: [0, 6]},
+                    margin: {l: 50, r: 50, t: 50, b: 50}, showlegend: false, autosize: true
+                };
+
+                Plotly.newPlot(plotDiv, [integralAreaTrace, curveTrace], layout, {responsive: true});
+            };
+
+            nSlider.addEventListener('input', updatePlot);
+            updatePlot(); 
+            plotRendered.integral = true;
+        }
+        
+        // MVT-I 交互图表
+        function initMVTIPlot() {
+            const plotDiv = document.getElementById('mvti-plot');
+            const a = 1;
+            const b = 4;
+            
+            const x_vals = Array.from({length: 101}, (_, i) => 0 + i * 0.06);
+            const y_vals = x_vals.map(f_integral);
+
+            // 计算精确积分 (需手动计算)
+            // f(x) = 2 + cos(pi*x/4) -> F(x) = 2x + (4/pi)sin(pi*x/4)
+            const F_integral = x => 2 * x + (4 / Math.PI) * Math.sin(Math.PI * x / 4);
+            const definite_integral = F_integral(b) - F_integral(a);
+            const f_avg = definite_integral / (b - a); // 积分中值
+
+            const curveTrace = { x: x_vals, y: y_vals, mode: 'lines', name: '函数 f(x)', line: {color: 'var(--secondary-color)', width: 3} };
+
+            // 平均值线
+            const avgTrace = { 
+                x: [a, b], 
+                y: [f_avg, f_avg], 
+                mode: 'lines', 
+                name: '平均值', 
+                line: {color: 'var(--primary-color)', dash: 'dot', width: 2} 
+            };
+            
+            // 积分中值矩形区域 (填充)
+            const rectTrace = {
+                x: [a, a, b, b, a],
+                y: [0, f_avg, f_avg, 0, 0],
+                fill: 'toself',
+                type: 'scatter',
+                mode: 'lines',
+                fillcolor: 'rgba(0, 150, 0, 0.4)',
+                name: '平均值矩形'
+            };
+
+            const layout = {
+                title: `积分中值定理演示 (f_avg = ${f_avg.toFixed(3)})`,
+                xaxis: {title: 'x 轴', range: [0, 5]},
+                yaxis: {title: 'y 轴', range: [0, 4]},
+                showlegend: false,
+                autosize: true
+            };
+            
+            document.getElementById('mvti-avg-display').textContent = `f_avg: ${f_avg.toFixed(3)}`;
+
+            Plotly.newPlot(plotDiv, [rectTrace, curveTrace, avgTrace], layout, {responsive: true});
+            plotRendered.mvti = true;
+        }
+
+        // --- 6. 页面初始化 ---
+        document.addEventListener("DOMContentLoaded", () => {
+            renderAllKatex();
+            // 首次加载，仅初始化第一个页面的图表
+            // switchPage 负责在激活页面时调用 init 函数
+            switchPage('derivative');
+        });
+    </script>
+</body>
+</html>
