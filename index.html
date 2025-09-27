@@ -181,11 +181,14 @@
 
         /* 修复图表诡异拉伸问题：给容器固定高度 */
         .plot-container {
-            background-color: white; 
-            border: 1px solid #ddd; 
-            box-shadow: 2px 2px 5px rgba(0,0,0,0.05); 
-            min-height: 400px; /* 确保 Plotly 有一个初始高度 */
-        }
+    background-color: white; 
+    border: 1px solid #ddd; 
+    box-shadow: 2px 2px 5px rgba(0,0,0,0.05); 
+    min-height: 400px; /* 保留这个 */
+    width: 100%; /* 明确添加宽度 */
+    height: 400px; /* ★ 关键补充：给一个固定的初始高度 */
+    flex: 1 1 400px; /* ★ 关键修改：改进flex属性 */
+}
 
         @media (min-width: 768px) {
             .interactive-area {
