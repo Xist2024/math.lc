@@ -5,15 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>微积分交互式学习中心 | math.lc</title>
     
-    <!-- 引入数学公式渲染库 KaTeX 的 CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
-    <!-- 引入 KaTeX JS -->
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
     
-    <!-- 引入图表库 Plotly.js -->
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 
-    <!-- CLASSIC STYLE CSS -->
     <style>
         /* 经典风格：使用衬线字体、简洁的配色和清晰的间距 */
         :root {
@@ -25,7 +21,7 @@
             --highlight-bg: #fffbe6; 
             --theorem-color: #008000; 
             /* 域名定制颜色 */
-            --domain-c-color: #FFD700; /* C 的颜色改为白色 */
+            --domain-c-color: #FFD700; 
         }
 
         body {
@@ -36,6 +32,12 @@
             background-color: var(--background-color);
             color: var(--text-color);
         }
+        nav .latex-box {
+            background-color: transparent;
+            border: none;
+            padding: 0;
+            margin: 0 0 0 4px; /* 可选：在 a_n 左侧保留一点间距 */
+        }
 
         header {
             background-color: var(--primary-color);
@@ -44,7 +46,9 @@
             text-align: center;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
-
+        .polyfit-inputs button {
+            display: none;
+        }
         /* 移除 h1，只保留定制的 header-title */
         header h1 {
             display: none; 
@@ -150,7 +154,7 @@
             font-size: 1.1em;
         }
         
-        /* 内联 LaTeX 框样式 */
+        /* 内联 LaTeX 框样式 - 关键样式 */
         .latex-box {
             display: inline-block;
             border: 1px solid #cce5ff; 
@@ -175,13 +179,20 @@
             background-color: #f9f9f9;
         }
 
+        /* 修复图表诡异拉伸问题：给容器固定高度 */
+        .plot-container {
+            background-color: white; 
+            border: 1px solid #ddd; 
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.05); 
+            min-height: 400px; /* 确保 Plotly 有一个初始高度 */
+        }
+
         @media (min-width: 768px) {
             .interactive-area {
                 flex-direction: row; 
             }
             .plot-container {
                 flex: 3; 
-                min-height: 400px;
             }
             .controls {
                 flex: 1; 
@@ -189,8 +200,109 @@
             }
         }
         
+        /* --- 多项式拟合模块特定样式 --- */
+        .polyfit-inputs {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .polyfit-inputs input {
+            width: 70px;
+            padding: 8px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            text-align: center;
+        }
+        /* 修复按钮样式 */
+        .polyfit-inputs button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            cursor: pointer;
+            border-radius: 4px;
+            font-family: 'Times New Roman', Georgia, serif;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+        .polyfit-inputs button:hover {
+            background-color: #004499;
+        }
+        .polyfit-result-box {
+            margin-top: 20px;
+            padding: 15px;
+            border: 1px solid var(--primary-color);
+            background-color: #f0f8ff;
+            border-radius: 5px;
+        }
+        .polyfit-formula-output {
+            font-size: 1.3em;
+            text-align: center;
+            padding: 10px 0;
+            min-height: 50px;
+        }
+        .polyfit-predictions {
+             padding: 10px 0;
+             font-size: 1.1em;
+             color: var(--secondary-color);
+             font-weight: bold;
+        }
+
+        
+        /* --- 科学计算器模块特定样式 --- */
+        .calculator-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+            max-width: 500px;
+            margin: 20px auto;
+            background-color: #eee;
+            padding: 15px;
+            border-radius: 8px;
+        }
+        #calc-display {
+            grid-column: 1 / -1;
+            background-color: #fff;
+            padding: 15px;
+            font-size: 2em;
+            text-align: right;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            min-height: 50px;
+            overflow-x: auto;
+        }
+        .calc-button {
+            padding: 15px 5px;
+            font-size: 1.1em;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.1s;
+            font-family: 'Times New Roman', Georgia, serif;
+            font-weight: bold;
+        }
+        .calc-button:hover {
+            background-color: #f0f0f0;
+        }
+        .calc-operator {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        .calc-operator:hover {
+            background-color: #004499;
+        }
+        .calc-equal {
+            background-color: var(--secondary-color);
+            color: white;
+        }
+        .calc-equal:hover {
+            background-color: #aa0000;
+        }
+        
         /* 其他样式保持不变 */
-        .plot-container { background-color: white; border: 1px solid #ddd; box-shadow: 2px 2px 5px rgba(0,0,0,0.05); }
         .exercise-section { padding: 15px 0; }
         .solution-toggle { background-color: var(--primary-color); color: white; border: none; padding: 8px 15px; margin-top: 10px; cursor: pointer; border-radius: 3px; }
         .solution { border-left: 3px solid var(--secondary-color); padding-left: 10px; margin-top: 10px; display: none; }
@@ -200,7 +312,6 @@
 </head>
 <body>
     <header>
-        <!-- 移除 h1，只保留定制的 header-title -->
         <div class="header-title">
             <span style="font-weight: normal;">math.</span><span class="domain-l">l</span>earning<span class="domain-c">c</span>enter
         </div>
@@ -211,32 +322,29 @@
             <a id="tab-derivative" class="active-tab" onclick="switchPage('derivative')">导数 f'(x)</a>
             <a id="tab-differential" onclick="switchPage('differential')">微分 dy</a>
             <a id="tab-integral" onclick="switchPage('integral')">定积分 ∫ f(x) dx</a>
+            <a id="tab-polyfit" onclick="switchPage('polyfit')">多项式拟合 <span data-latex-inline="a_n"></span></a>
+            <a id="tab-calculator" onclick="switchPage('calculator')">科学计算器</a>
         </nav>
     </header>
 
     <main>
-        <!-- ============================================== -->
-        <!-- 1. 导数模块 (Derivative) -->
-        <!-- ============================================== -->
         <section id="derivative" class="concept-module active-page">
             <h2>1. 导数 (Derivative)：变化率与切线斜率</h2>
             
-            <!-- 历史背景 - 深度扩充 -->
             <h3>历史背景：微积分的诞生及其争议</h3>
             <div class="content-box">
                 <p>导数的概念源于 17 世纪科学界对<strong>瞬时变化</strong>的迫切需求，核心是要解决物理学中的<strong>瞬时速度</strong>和几何学中的<strong>曲线切线斜率</strong>两大难题。在伽利略和开普勒奠定运动学基础后，如何精确描述物体在某一时刻的速度成为了关键。</p>
                 <p><strong>艾萨克·牛顿</strong>（<span data-latex-inline="\text{Isaac Newton}"></span>）于 1665 年前后发展了<strong>“流数术”</strong>，他将变化的量称为“流量”(<span data-latex-inline="\text{fluent}"></span>)，而将变化率称为“流数”(<span data-latex-inline="\text{fluxion}"></span>)，并用小点符号 <span data-latex-inline="\dot{x}"></span> 来表示。牛顿主要关注物理应用，特别是万有引力理论的数学基础。</p>
-                <p>几乎同时，<strong>戈特弗里德·莱布尼茨</strong>（<span data-latex-inline="\text{Gottfried Leibniz}"></span>）提出了更具系统性和符号优势的微分概念。他引入了我们今天使用的 <span data-latex-inline="\frac{dy}{dx}"></span>（导数）和 <span data-latex-inline="\int"></span>（积分）符号，这些符号的简洁性极大地促进了微积分在欧洲大陆的传播和发展。然而，早期微积分建立在<strong>无穷小量</strong>这一含糊的概念上，直到 19 世纪，奥古斯丁·路易·柯西和卡尔·魏尔斯特拉斯才通过<strong>极限理论</strong>，为导数和微分提供了严格的数学定义，彻底解决了“无穷小量”的逻辑争议。</p>
+                <p>几乎同时，<strong>戈特弗里德·莱布尼茨</strong>（<span data-latex-inline="\text{Gottfried Leibniz}"></span>）提出了更具系统性和符号优势的微分概念。他引入了我们今天使用的 <span data-latex-inline="\frac{dy}{dx}"></span>（导数）和 <span data-latex-inline="\int"></span>（积分）符号，这些符号的简洁性极大地促进了微积分在欧洲大陆的传播和发展。然而，早期微积分建立在<strong>无穷小量</strong>这一含糊的概念上，直到 19 世纪，奥古斯丁·路易·柯西和卡尔·魏尔斯特拉斯才通过**极限理论**，为导数和微分提供了严格的数学定义，彻底解决了“无穷小量”的逻辑争议。</p>
             </div>
             
-            <!-- 核心交互图表：割线逼近切线 -->
             <h3>核心交互：割线逼近瞬时变化率</h3>
-            <p>导数的几何定义是<strong>切线斜率</strong>，它通过割线斜率的极限过程来精确捕获。割线斜率 <span data-latex-inline="\frac{f(x+h) - f(x)}{h}"></span> 代表了函数在 <span data-latex-inline="[x, x+h]"></span> 区间的<strong>平均变化率</strong>。当您在图中拖动滑块确定切点 <span data-latex-inline="x"></span> 时，图示的割线基于一个固定的微小 <span data-latex-inline="h"></span>。想象一下，当 <span data-latex-inline="h"></span> 逐渐趋近于零时，割线就会紧密地“吻合”曲线，最终转化为切线，其斜率即为该点的<strong>瞬时变化率</strong>。</p>
+            <p>导数的几何定义是<strong>切线斜率</strong>，它通过割线斜率的极限过程来精确捕获。割线斜率 <span data-latex-inline="\frac{f(x+h) - f(x)}{h}"></span> 代表了函数在 <span data-latex-inline="[x, x+h]"></span> 区间的**平均变化率**。当您在图中拖动滑块确定切点 <span data-latex-inline="x"></span> 时，图示的割线基于一个固定的微小 <span data-latex-inline="h"></span>。想象一下，当 <span data-latex-inline="h"></span> 逐渐趋近于零时，割线就会紧密地“吻合”曲线，最终转化为切线，其斜率即为该点的**瞬时变化率**。</p>
             
             <div class="interactive-area">
                 <div id="derivative-plot" class="plot-container"></div>
                 <div class="controls">
-                    <label for="point-x">选择切点 $x$:</label>
+                    <label for="point-x">选择切点 <span data-latex-inline="x"></span>:</label>
                     <input type="range" id="point-x" min="-4" max="4" value="1" step="0.1">
                     <span id="x-value-display">x = 1.0</span>
                     <p>观察切线和割线如何在高阶函数 <span data-latex-inline="f(x) = 0.5x^2+1"></span> 上逼近。</p>
@@ -246,7 +354,6 @@
             <h3>数学定义：</h3>
             <p data-katex="\text{f'(x)} = \lim_{h \to 0} \frac{f(x+h) - f(x)}{h}"></p>
             
-            <!-- 新增定理：罗尔定理 -->
             <h3>定理与推论：罗尔定理 (Rolle's Theorem)</h3>
             <div class="theorem-box">
                 <h4>罗尔定理 (Rolle's Theorem)</h4>
@@ -256,22 +363,20 @@
             </div>
 
 
-            <!-- MVT 交互图表 -->
             <h3>定理演示：微分中值定理 (MVT)</h3>
             <p>通过下方图表，改变区间端点 <span data-latex-inline="a"></span> 和 <span data-latex-inline="b"></span>，定理保证在 <span data-latex-inline="a"></span> 和 <span data-latex-inline="b"></span> 之间，一定存在一条与割线平行的切线（即导数值相等）。</p>
             <div class="interactive-area">
                 <div id="mvt-plot" class="plot-container"></div>
                 <div class="controls">
-                    <label for="mvt-a">选择端点 $a$:</label>
+                    <label for="mvt-a">选择端点 <span data-latex-inline="a"></span>:</label>
                     <input type="range" id="mvt-a" min="-4" max="1" value="-3" step="0.1">
                     <span id="mvt-a-display">a = -3.0</span>
-                    <label for="mvt-b">选择端点 $b$:</label>
+                    <label for="mvt-b">选择端点 <span data-latex-inline="b"></span>:</label>
                     <input type="range" id="mvt-b" min="1.1" max="4" value="3" step="0.1">
                     <span id="mvt-b-display">b = 3.0</span>
                 </div>
             </div>
 
-            <!-- 习题与解析 -->
             <div class="exercise-section">
                 <h3>习题与解析</h3>
                 <p><strong>练习 1.1：</strong> 求函数 <span data-latex-inline="f(x) = 3x^2 - 5x"></span> 在 <span data-latex-inline="x=2"></span> 处的导数。</p>
@@ -281,7 +386,6 @@
                 </div>
             </div>
 
-            <!-- 超难例题 -->
             <h3>挑战例题：洛必达法则的几何证明与应用</h3>
             <div class="content-box">
                 <p>洛必达法则 (<span data-latex-inline="\text{L'Hôpital's Rule}"></span>) 是处理 <span data-latex-inline="\frac{0}{0}"></span> 或 <span data-latex-inline="\frac{\infty}{\infty}"></span> 不定式极限的强大工具。其几何原理可以追溯到广义中值定理，即 <strong>柯西中值定理</strong>。它告诉我们，在接近交点 <span data-latex-inline="a"></span> 附近，两个函数 <span data-latex-inline="f(x)"></span> 和 <span data-latex-inline="g(x)"></span> 的比值 <span data-latex-inline="\frac{f(x)}{g(x)}"></span> 约等于它们切线斜率的比值 <span data-latex-inline="\frac{f'(x)}{g'(x)}"></span>。</p>
@@ -291,27 +395,22 @@
             </div>
         </section>
 
-        <!-- ============================================== -->
-        <!-- 2. 微分模块 (Differential) -->
-        <!-- ============================================== -->
         <section id="differential" class="concept-module">
             <h2>2. 微分 (Differential)：线性近似与误差</h2>
             
-            <!-- 历史背景 - 深度扩充 -->
             <h3>历史背景：从“无穷小”到“线性近似”</h3>
             <div class="content-box">
                 <p>在牛顿和莱布尼茨的时代，微分 <span data-latex-inline="dy"></span> 被视为函数 <span data-latex-inline="\Delta y"></span> 的“主部”，是比 <span data-latex-inline="\Delta x"></span> 更高阶的无穷小量。然而，这种对“无穷小量”的操作方式缺乏严格的逻辑基础，被贝克莱主教等哲学家批评为“已故量之鬼魂”。</p>
-                <p>现代微积分中，微分 <span data-latex-inline="dy"></span> 被重新定义为<strong>线性近似</strong>。我们不再将 <span data-latex-inline="dx"></span> 视为一个无穷小的数，而是将其视为一个<strong>任意小的，非零的增量</strong>，而 <span data-latex-inline="dy"></span> 则是函数在切线上对应的变化。这种方法回避了对“无穷小量”的哲学争论，将微分的重点放在了<strong>局部线性化</strong>和<strong>误差估算</strong>的强大应用上。这种线性近似在物理建模、数值分析和金融工程中至关重要。</p>
+                <p>现代微积分中，微分 <span data-latex-inline="dy"></span> 被重新定义为<strong>线性近似</strong>。我们不再将 <span data-latex-inline="dx"></span> 视为一个无穷小的数，而是将其视为一个**任意小的，非零的增量**，而 <span data-latex-inline="dy"></span> 则是函数在切线上对应的变化。这种方法回避了对“无穷小量”的哲学争论，将微分的重点放在了**局部线性化**和**误差估算**的强大应用上。这种线性近似在物理建模、数值分析和金融工程中至关重要。</p>
             </div>
 
-            <!-- 核心交互图表：线性近似与误差 -->
             <h3>核心交互：线性近似与误差</h3>
             <p>微分 <span data-latex-inline="dy = f'(x) dx"></span> 是基于切线的变化，而 <span data-latex-inline="\Delta y = f(x+dx) - f(x)"></span> 是函数的实际变化。当您拖动 <span data-latex-inline="dx"></span> 滑块时，观察 <span data-latex-inline="dy"></span> 和 <span data-latex-inline="\Delta y"></span> 的差异。这个差异，即误差 <span data-latex-inline="\Delta y - dy"></span>，在 <span data-latex-inline="dx"></span> 较小时，其大小远小于 <span data-latex-inline="dx"></span> 本身，证明了线性近似的有效性。</p>
             
             <div class="interactive-area">
                  <div id="differential-plot" class="plot-container"></div>
                  <div class="controls">
-                    <label for="delta-x">选择 $\Delta x$ (或 $dx$):</label>
+                    <label for="delta-x">选择 <span data-latex-inline="\Delta x"></span> (或 <span data-latex-inline="dx"></span>):</label>
                     <input type="range" id="delta-x" min="0.1" max="2" value="1" step="0.1">
                     <span id="dx-value-display">dx = 1.0</span>
                     <p>当 <span data-latex-inline="dx"></span> 减小时，红色的误差线 (<span data-latex-inline="\Delta y - dy"></span>) 会迅速收缩。</p>
@@ -321,7 +420,6 @@
             <h3>数学关系：</h3>
             <p data-katex="dy = f'(x) dx"></p>
             
-            <!-- 新增定理：泰勒多项式 -->
             <h3>定理与推论：泰勒多项式——超越线性近似</h3>
             <div class="theorem-box">
                 <h4>泰勒多项式 (Taylor Polynomials) 的定义与应用</h4>
@@ -331,33 +429,30 @@
                 <p data-katex="P_n(x) = f(a) + f'(a)(x-a) + \frac{f''(a)}{2!}(x-a)^2 + \dots + \frac{f^{(n)}(a)}{n!}(x-a)^n"></p>
             </div>
 
-            <!-- 泰勒多项式交互图表 -->
-            <p>通过改变阶数 $n$，观察高阶多项式 <span data-latex-inline="P_n(x)"></span> 如何更精确地逼近目标函数 <span data-latex-inline="f(x) = \sin(x)"></span>。随着阶数增加，泰勒曲线与正弦曲线重合的区域会不断扩大。</p>
+            <p>通过改变阶数 <span data-latex-inline="n"></span>，观察高阶多项式 <span data-latex-inline="P_n(x)"></span> 如何更精确地逼近目标函数 <span data-latex-inline="f(x) = \sin(x)"></span>。随着阶数增加，泰勒曲线与正弦曲线重合的区域会不断扩大。</p>
             <div class="interactive-area">
                 <div id="taylor-plot" class="plot-container"></div>
                 <div class="controls">
-                    <label for="taylor-n">选择多项式阶数 $n$:</label>
+                    <label for="taylor-n">选择多项式阶数 <span data-latex-inline="n"></span>:</label>
                     <input type="range" id="taylor-n" min="1" max="5" value="3" step="2">
                     <span id="taylor-n-display">n = 3 (3阶)</span>
                     <p>注：此图是在 <span data-latex-inline="a=0"></span> 处展开的麦克劳林级数（<span data-latex-inline="\text{Maclaurin Series}"></span>）。</p>
                 </div>
             </div>
 
-            <!-- 习题与解析 -->
             <div class="exercise-section">
                 <h3>习题与解析</h3>
                 <p><strong>练习 2.1：</strong> 利用微分估算 <span data-latex-inline="\sqrt{9.03}"></span> 的值。已知 <span data-latex-inline="f(x) = \sqrt{x}"></span>，取 <span data-latex-inline="x=9"></span>，<span data-latex-inline="dx=0.03"></span>。</p>
                 <button class="solution-toggle" onclick="toggleSolution('diff-ex1')">查看解析</button>
                 <div id="diff-ex1" class="solution">
-                    <p>解：线性近似的基础是 <span data-latex-inline="f(x+dx) \approx f(x) + f'(x) dx"></span>。<br>
-                    首先求导数：<span data-latex-inline="f'(x) = \frac{1}{2\sqrt{x}}"></span>。<br>
-                    在 <span data-latex-inline="x=9"></span> 处，<span data-latex-inline="f'(9) = \frac{1}{2\sqrt{9}} = \frac{1}{6}"></span>。<br>
-                    微分项：<span data-latex-inline="dy = f'(9) dx = \frac{1}{6} (0.03) = 0.005"></span>。<br>
+                    <p>解：线性近似的基础是 <span data-latex-inline="f(x+dx) \approx f(x) + f'(x) dx"></span>。<br><br>
+                    首先求导数：<span data-latex-inline="f'(x) = \frac{1}{2\sqrt{x}}"></span>。<br><br>
+                    在 <span data-latex-inline="x=9"></span> 处，<span data-latex-inline="f'(9) = \frac{1}{2\sqrt{9}} = \frac{1}{6}"></span>。<br><br>
+                    微分项：<span data-latex-inline="dy = f'(9) dx = \frac{1}{6} (0.03) = 0.005"></span>。<br><br>
                     近似值：<span data-latex-inline="\sqrt{9.03} \approx f(9) + dy = 3 + 0.005 = 3.005"></span>。实际精确值约为 3.004995，误差极小。</p>
                 </div>
             </div>
             
-            <!-- 新增内容：链式法则的几何解释 -->
             <h3>深入理解：链式法则的几何解释</h3>
             <div class="content-box">
                 <p>链式法则 <span data-latex-inline="\frac{dy}{dx} = \frac{dy}{du} \cdot \frac{du}{dx}"></span> 是复合函数求导的核心规则。在微分的语言中，它具有非常直观的几何意义。如果 <span data-latex-inline="y"></span> 随 <span data-latex-inline="u"></span> 变化，而 <span data-latex-inline="u"></span> 又随 <span data-latex-inline="x"></span> 变化，那么 <span data-latex-inline="y"></span> 随 <span data-latex-inline="x"></span> 的变化率（<span data-latex-inline="\frac{dy}{dx}"></span>）就是两个独立变化率的乘积。</p>
@@ -365,37 +460,31 @@
             </div>
 
 
-            <!-- 超难例题 -->
             <h3>挑战例题：圆柱体积误差传递与不确定度分析</h3>
             <div class="content-box">
-                <p>微分在测量科学中用于不确定度分析（<span data-latex-inline="\text{Propagation of Error}"></span>）。如果对圆柱的半径 $r$ 和高 $h$ 的测量都存在 <span data-latex-inline="\pm 1\%"></span> 的相对误差，我们如何估算体积 $V$ 的最大相对误差？</p>
+                <p>微分在测量科学中用于不确定度分析（<span data-latex-inline="\text{Propagation of Error}"></span>）。如果对圆柱的半径 $r$ 和高 $h$ 的测量都存在 <span data-latex-inline="\pm 1\%"></span> 的相对误差，我们如何估算体积 $V$ の最大相对误差？</p>
                 <p>圆柱体积公式：<span data-latex-inline="\text{V = \pi r^2 h}"></span>。首先求全微分：<span data-latex-inline="dV = \frac{\partial V}{\partial r} dr + \frac{\partial V}{\partial h} dh = 2\pi rh dr + \pi r^2 dh"></span>。</p>
-                <p>解析：将全微分表达式除以 <span data-latex-inline="V"></span>，得到相对误差：<span data-latex-inline="\frac{dV}{V} = 2\frac{dr}{r} + \frac{dh}{h}"></span>。
+                <p>解析：将全微分表达式除以 <span data-latex-inline="V"></span>，得到相对误差：<span data-latex-inline="\frac{dV}{V} = 2\frac{dr}{r} + \frac{dh}{h}"></span>。<br>
                 最大相对误差是所有相对误差绝对值之和：<span data-latex-inline="\text{Max Error} = 2|\frac{dr}{r}| + |\frac{dh}{h}|"></span>。由于 <span data-latex-inline="|\frac{dr}{r}| = 0.01"></span> 且 <span data-latex-inline="|\frac{dh}{h}| = 0.01"></span>，最大相对误差为 <span data-latex-inline="2(0.01) + 0.01 = 0.03"></span>，即 <span data-latex-inline="3\%"></span>。半径的误差对体积的影响是高度的两倍。</p>
             </div>
         </section>
 
-        <!-- ============================================== -->
-        <!-- 3. 积分模块 (Integral) -->
-        <!-- ============================================== -->
         <section id="integral" class="concept-module">
-            <h2>3. 定积分 (Integral)：面积的累加与求和</h2>
+            <h2>3. 定积分 (Integral)：面积的累加与求和</h2><br>
 
-            <!-- 历史背景 - 深度扩充 -->
             <h3>历史背景：穷竭法、极限与微积分基本定理</h3>
             <div class="content-box">
                 <p>积分思想的历史比微分更悠久。古希腊的<strong>阿基米德</strong>（<span data-latex-inline="\text{Archimedes}"></span>）使用著名的<strong>穷竭法</strong>，通过在曲线内部和外部不断画内接和外切的多边形来逼近曲线下方的面积。这本质上就是<strong>黎曼和</strong>（<span data-latex-inline="\text{Riemann Sum}"></span>）和积分极限思想的早期形式。</p>
                 <p>到了 17 世纪，牛顿和莱布尼茨通过发现<strong>微积分基本定理</strong>（<span data-latex-inline="\text{FTC}"></span>）实现了数学上的革命。在此之前，求导和求面积是两个独立的、困难的数学问题。FTC 证明了它们是<strong>互逆操作</strong>，将求复杂的曲线下面积问题，转化为了求导数的逆过程——<strong>求原函数</strong>的简单代数问题。这使得微积分成为了一个统一且高效的工具。</p>
             </div>
 
-            <!-- 核心交互图表：黎曼和逼近面积 -->
             <h3>核心交互：黎曼和逼近面积</h3>
-            <p>定积分 <span data-latex-inline="\int_{a}^{b} f(x) dx"></span> 的几何意义是函数曲线与 <span data-latex-inline="x"></span> 轴之间，在区间 <span data-latex-inline="[a, b]"></span> 上的<strong>带符号面积</strong>。黎曼和通过将区间划分为 <span data-latex-inline="n"></span> 个小矩形，并对这些矩形面积求和来近似总面积。观察矩形数量 <span data-latex-inline="n"></span> 增加时，黎曼和 <span data-latex-inline="\sum_{i=1}^{n} f(x_i^*) \Delta x"></span> 如何逼近真实面积。</p>
+            <p>定积分 <span data-latex-inline="\int_{a}^{b} f(x) dx"></span> 的几何意义是函数曲线与 <span data-latex-inline="x"></span> 轴之间，在区间 <span data-latex-inline="[a, b]"></span> 上的**带符号面积**。黎曼和通过将区间划分为 <span data-latex-inline="n"></span> 个小矩形，并对这些矩形面积求和来近似总面积。观察矩形数量 <span data-latex-inline="n"></span> 增加时，黎曼和 <span data-latex-inline="\sum_{i=1}^{n} f(x_i^*) \Delta x"></span> 如何逼近真实面积。</p>
             
             <div class="interactive-area">
                 <div id="integral-plot" class="plot-container"></div>
                 <div class="controls">
-                    <label for="num-rectangles">矩形数量 ($n$):</label>
+                    <label for="num-rectangles">矩形数量 (<span data-latex-inline="n"></span>):</label>
                     <input type="range" id="num-rectangles" min="4" max="50" value="10" step="1">
                     <span id="n-value-display">n = 10</span>
                 </div>
@@ -404,19 +493,17 @@
             <h3>数学定义 (黎曼和):</h3>
             <p data-katex="\int_{a}^{b} f(x) dx = \lim_{n \to \infty} \sum_{i=1}^{n} f(x_i^*) \Delta x"></p>
 
-            <!-- 新增定理：定积分的奇偶性性质 -->
             <h3>定理与性质：定积分的奇偶性</h3>
             <div class="theorem-box">
                 <h4>定积分的奇偶性性质</h4>
                 <p>如果函数 <span data-latex-inline="f(x)"></span> 在对称区间 <span data-latex-inline="[-a, a]"></span> 上连续，利用奇偶性可以简化积分计算：</p>
                 <ul>
-                    <li>如果 <span data-latex-inline="f(x)"></span> 是<strong>偶函数</strong>（<span data-latex-inline="f(-x) = f(x)"></span>），图像关于 $y$ 轴对称：<p data-katex="\int_{-a}^{a} f(x) dx = 2 \int_{0}^{a} f(x) dx"></p></li>
+                    <li>如果 <span data-latex-inline="f(x)"></span> 是<strong>偶函数</strong>（<span data-latex-inline="f(-x) = f(x)"></span>），图像关于 <span data-latex-inline="y"></span> 轴对称：<p data-katex="\int_{-a}^{a} f(x) dx = 2 \int_{0}^{a} f(x) dx"></p></li>
                     <li>如果 <span data-latex-inline="f(x)"></span> 是<strong>奇函数</strong>（<span data-latex-inline="f(-x) = -f(x)"></span>），图像关于原点对称：<p data-katex="\int_{-a}^{a} f(x) dx = 0"></p></li>
                 </ul>
                 <p>这些性质在物理学（如质心计算）和概率论中非常实用，能显著减少计算量。</p>
             </div>
 
-            <!-- 定理：积分中值定理 (MVT-I) -->
             <h3>定理演示：积分中值定理</h3>
             <div class="theorem-box">
                 <h4>积分中值定理 (Mean Value Theorem for Integrals)</h4>
@@ -424,7 +511,6 @@
                 <p data-katex="\int_{a}^{b} f(x) dx = f(c)(b - a) \quad \text{或} \quad f_{\text{avg}} = \frac{1}{b-a} \int_{a}^{b} f(x) dx"></p>
             </div>
 
-            <!-- MVT-I 交互图表 -->
             <p>通过下方图表，观察平均值 <span data-latex-inline="f_{\text{avg}}"></span> 确定的矩形面积如何精确地与曲线下的积分面积相等。函数 <span data-latex-inline="f(x) = 2 + \cos(\pi x/4)"></span> 在区间 <span data-latex-inline="[1, 4]"></span> 上的平均值即为 <span data-latex-inline="f_{\text{avg}}"></span>。</p>
             <div class="interactive-area">
                 <div id="mvti-plot" class="plot-container"></div>
@@ -434,40 +520,133 @@
                 </div>
             </div>
 
-            <!-- 习题与解析 -->
             <div class="exercise-section">
                 <h3>习题与解析</h3>
                 <p><strong>练习 3.1：</strong> 求定积分 <span data-latex-inline="\int_{0}^{2} (x^3 + 1) dx"></span> 的值。</p>
                 <button class="solution-toggle" onclick="toggleSolution('int-ex1')">查看解析</button>
                 <div id="int-ex1" class="solution">
-                    <p>解：根据微积分基本定理，我们首先求出原函数 <span data-latex-inline="F(x) = \frac{1}{4}x^4 + x"></span>。<br>
-                    然后，计算 <span data-latex-inline="F(2) - F(0)"></span>。<br>
-                    <span data-latex-inline="F(2) = \frac{1}{4}(2^4) + 2 = 4 + 2 = 6"></span>。<br>
-                    <span data-latex-inline="F(0) = \frac{1}{4}(0^4) + 0 = 0"></span>。<br>
+                    <p>解：根据微积分基本定理，我们首先求出原函数 <span data-latex-inline="F(x) = \frac{1}{4}x^4 + x"></span>。<br><br>
+                    然后，计算 <span data-latex-inline="F(2) - F(0)"></span>。<br><br>
+                    <span data-latex-inline="F(2) = \frac{1}{4}(2^4) + 2 = 4 + 2 = 6"></span>。<br><br>
+                    <span data-latex-inline="F(0) = \frac{1}{4}(0^4) + 0 = 0"></span>。<br><br>
                     定积分的值为 <span data-latex-inline="6 - 0 = 6"></span>。</p>
                 </div>
             </div>
             
-            <!-- 超难例题 -->
             <h3>挑战例题：积分的应用：曲线长度 (Arc Length)</h3>
             <div class="content-box">
                 <p>定积分是求体积、做功、计算质心和计算曲线长度的核心工具。求函数 <span data-latex-inline="y = \frac{2}{3}x^{3/2}"></span> 在区间 <span data-latex-inline="[0, 3]"></span> 上的弧长 <span data-latex-inline="L"></span>。</p>
                 <p>弧长公式：<span data-latex-inline="L = \int_{a}^{b} \sqrt{1 + \left(\frac{dy}{dx}\right)^2} dx"></span></p>
-                <p>解析：
-                    首先求导数：<span data-latex-inline="\frac{dy}{dx} = x^{1/2}"></span>。
-                    平方并代入公式：<span data-latex-inline="L = \int_{0}^{3} \sqrt{1 + x} dx"></span>。
+                <p>解析：<br>
+                    首先求导数：<span data-latex-inline="\frac{dy}{dx} = x^{1/2}"></span>。<br>
+                    平方并代入公式：<span data-latex-inline="L = \int_{0}^{3} \sqrt{1 + x} dx"></span>。<br>
                     使用换元法（<span data-latex-inline="u = 1+x"></span>）进行积分，最终计算得：<span data-latex-inline="L = \frac{2}{3} (4^{3/2} - 1^{3/2}) = \frac{14}{3}"></span>。</p>
             </div>
         </section>
+
+        <section id="polyfit" class="concept-module">
+            <h2>4. 多项式拟合：用三次函数捕捉序列趋势</h2>
+            
+            <h3>原理：有限差分与插值多项式</h3>
+            <div class="content-box">
+                <p>对于任意 <strong><span data-latex-inline="N"></span> 个</strong>数据点，总存在一个唯一的 <strong><span data-latex-inline="N-1"></span> 次</strong>多项式可以穿过所有这些点。本工具使用<strong>牛顿差分法</strong>或<strong>拉格朗日插值法</strong>，为您输入的 4 个数字拟合一个<strong>三次多项式</strong>通项公式 <span data-latex-inline="a_n = An^3 + Bn^2 + Cn + D"></span>。</p>
+                <p>该公式能最准确地表示给定序列的“内部逻辑”，并用于可靠地预测下一项。</p>
+            </div>
+            
+            <h3>交互工具：序列拟合与预测</h3>
+            <p>请输入数列的前四项 <span data-latex-inline="a_1, a_2, a_3, a_4"></span>（默认值使用 $n$ 维体积公式的系数作为示例）：</p>
+            
+            <div class="polyfit-inputs">
+                <input type="number" id="poly-a1" value="1">
+                <input type="number" id="poly-a2" value="23">
+                <input type="number" id="poly-a3" value="56">
+                <input type="number" id="poly-a4" value="89">
+                <button onclick="calculatePolyfit()">生成公式和预测项</button>
+            </div>
+            
+            <div class="polyfit-result-box">
+                <h4>拟合结果 <span data-latex-inline="a_n"></span> (多项式形式):</h4>
+                <div id="polyfitFormulaOutput" class="polyfit-formula-output">
+                    </div>
+                <p><strong>序列预测值 (<span data-latex-inline="a_5"></span> 到 <span data-latex-inline="a_{10}"></span>):</strong></p>
+                <div id="polyfitA5Output" class="polyfit-predictions">
+                    </div>
+            </div>
+            
+            <h3>拓展应用：</h3>
+            <div class="theorem-box">
+                <h4>三次多项式拟合的应用场景</h4>
+                <p>这种方法广泛应用于<strong>数据挖掘</strong>和<strong>数值分析</strong>中，例如：</p>
+                <ul>
+                    <li><strong>曲线平滑：</strong> 用于在不精确数据点之间构造平滑路径（如三次样条插值）。</li>
+                    <li><strong>预测分析：</strong> 当已知趋势数据的前几期表现时，用于短期趋势预测。</li>
+                    <li><strong>离散化：</strong> 将复杂的连续函数通过少量采样点转化为易于计算的多项式。</li>
+                </ul>
+            </div>
+            
+        </section>
+
+        <section id="calculator" class="concept-module">
+            <h2>5. 科学计算器：基础运算与数学函数</h2>
+            
+            <div class="content-box">
+                <p>本计算器支持标准的四则运算、高阶幂次和根号运算，以及常用三角函数。请使用 <span data-latex-inline="\text{Rad}"></span> (弧度) 作为三角函数的输入单位。输出结果保留 10 位小数精度。</p>
+            </div>
+
+            <div class="calculator-grid">
+                <div id="calc-display" data-current-input="0" data-previous-input="" data-operator="">0</div>
+                
+                <button class="calc-button" data-value="Math.PI">$\pi$</button>
+                <button class="calc-button" data-value="Math.E">$e$</button>
+                <button class="calc-button" data-function="power_n">$x^n$</button>
+                <button class="calc-button" data-function="power_y">$x^y$</button>
+                <button class="calc-button" data-function="sqrt">$\sqrt{x}$</button>
+                
+                <button class="calc-button" data-function="sin">sin</button>
+                <button class="calc-button" data-function="cos">cos</button>
+                <button class="calc-button" data-function="tan">tan</button>
+                <button class="calc-button" data-function="log">ln</button>
+                <button class="calc-button" data-function="exp">$e^x$</button>
+                
+                <button class="calc-button calc-operator" data-clear="all">AC</button>
+                <button class="calc-button calc-operator" data-clear="entry">C</button>
+                <button class="calc-button calc-operator" data-function="factorial">n!</button>
+                <button class="calc-button calc-operator" data-function="power_2">$x^2$</button>
+                <button class="calc-button calc-operator" data-function="root_2">$^2\sqrt{x}$</button>
+
+                <button class="calc-button" data-value="7">7</button>
+                <button class="calc-button" data-value="8">8</button>
+                <button class="calc-button" data-value="9">9</button>
+                <button class="calc-operator" data-op="/">$\div$</button>
+                <button class="calc-operator" data-op="*">$\times$</button>
+                
+                <button class="calc-button" data-value="4">4</button>
+                <button class="calc-button" data-value="5">5</button>
+                <button class="calc-button" data-value="6">6</button>
+                <button class="calc-operator" data-op="-">-</button>
+                <button class="calc-operator" data-op="+">+</button>
+                
+                <button class="calc-button" data-value="1">1</button>
+                <button class="calc-button" data-value="2">2</button>
+                <button class="calc-button" data-value="3">3</button>
+                <button class="calc-button" data-value="(">(</button>
+                <button class="calc-button" data-value=")">)</button>
+                
+                <button class="calc-button" data-value="0">0</button>
+                <button class="calc-button" data-value=".">.</button>
+                <button class="calc-operator" data-op="%">%</button>
+                <button class="calc-button calc-equal" data-op="=" style="grid-column: 4 / -1; width: auto;">=</button>
+            </div>
+        </section>
+
     </main>
 
     <footer>
         <p>&copy; 交互式微积分学习 | 纯静态网页实现</p>
     </footer>
 
-    <!-- INTERACTIVE JAVASCRIPT LOGIC -->
     <script>
-        // --- 1. 函数定义 ---
+        // --- 1. 函数定义 (原代码保留) ---
         const f_deriv = x => 0.5 * x * x + 1; // y = 0.5x² + 1
         const fPrime_deriv = x => x; // y' = x 
         
@@ -499,7 +678,7 @@
         const y_vals_deriv = x_vals_default.map(f_deriv);
         
         const plotRendered = {
-            derivative: false, differential: false, integral: false,
+            derivative: false, differential: false, integral: false, polyfit: false, calculator: false,
             challenge: false, mvt: false, taylor: false, mvti: false
         };
         
@@ -507,6 +686,7 @@
         function relayoutPlots(plotIds) {
             plotIds.forEach(id => {
                 const plotDiv = document.getElementById(id);
+                // 仅在 Plotly 已经初始化且存在布局时才调用 relayout
                 if (plotDiv && plotDiv._fullLayout) { 
                     Plotly.relayout(plotDiv, {}); 
                 }
@@ -519,15 +699,33 @@
             document.querySelectorAll('[data-katex]').forEach(function(element) {
                 katex.render(element.getAttribute('data-katex'), element, { throwOnError: false });
             });
-
+            
+            // 修正后的 KaTeX 渲染逻辑：找到 data-latex-inline 并用 latex-box 包装
             document.querySelectorAll('[data-latex-inline]').forEach(function(span) {
+                // 确保只替换未被处理过的 span
+                if (span.classList.contains('latex-box')) return; 
+
                 const latex = span.getAttribute('data-latex-inline');
                 const tempDiv = document.createElement('div');
                 katex.render(latex, tempDiv, { throwOnError: false, displayMode: false });
+                
                 const wrapper = document.createElement('span');
                 wrapper.className = 'latex-box';
                 wrapper.innerHTML = tempDiv.innerHTML;
-                span.parentNode.replaceChild(wrapper, span);
+                
+                // 确保替换的节点是一个原始节点
+                if (span.parentNode) {
+                    span.parentNode.replaceChild(wrapper, span);
+                }
+            });
+            
+            // 修正计算器按钮上的 LaTeX 符号
+            document.querySelectorAll('.calc-button[data-op], .calc-button[data-value], .calc-button[data-function], .calc-operator[data-op]').forEach(button => {
+                const buttonText = button.textContent.trim();
+                if (buttonText.includes('$')) {
+                    const latex = buttonText.replace(/\$/g, '');
+                    katex.render(latex, button, { throwOnError: false });
+                }
             });
         }
         
@@ -563,16 +761,22 @@
                 if (!plotRendered.integral) initIntegralPlot();
                 if (!plotRendered.mvti) initMVTIPlot();
                 currentPlots = ['integral-plot', 'mvti-plot'];
+            } else if (pageId === 'polyfit') {
+                calculatePolyfit(); 
+            } else if (pageId === 'calculator') {
+                // 计算器不需要 Plotly
             }
             
-            // 2. 强制 Plotly 重新布局，修复变白问题
+            // 2. 强制 Plotly 重新布局，修复变白和无限拉伸问题
+            // 修正：调用 relayout 的目的是让 Plotly 重新计算其尺寸，以适应父容器的变化。
+            // 关键修复：确保 plot-container 有明确的尺寸（已在 CSS 中设置 min-height）。
             setTimeout(() => {
                 relayoutPlots(currentPlots);
             }, 50); 
         }
 
 
-        // --- 3. 导数模块 (Derivative) ---
+        // --- 3. 导数模块 (Derivative) --- (原代码保留)
         function initDerivativePlot() {
             const plotDiv = document.getElementById('derivative-plot');
             const xSlider = document.getElementById('point-x');
@@ -611,7 +815,7 @@
             plotRendered.derivative = true;
         }
 
-        // MVT 交互图表
+        // MVT 交互图表 (原代码保留)
         function initMVTPlot() {
             const plotDiv = document.getElementById('mvt-plot');
             const aSlider = document.getElementById('mvt-a');
@@ -679,31 +883,31 @@
 
         function initDerivativeChallengePlot() {
              Plotly.newPlot('deriv-challenge-plot', [
-                {
-                    x: Array.from({length: 101}, (_, i) => -1.5 + i * 0.03),
-                    y: Array.from({length: 101}, (_, i) => Math.sin(-1.5 + i * 0.03)),
-                    mode: 'lines',
-                    name: 'y = sin(x)',
-                    line: {color: 'blue'}
-                },
-                {
-                    x: [-1.5, 1.5],
-                    y: [-1.5, 1.5],
-                    mode: 'lines',
-                    name: 'y = x',
-                    line: {color: 'orange', dash: 'dash'}
-                }
-            ], {
-                title: '洛必达法则几何意义：y=sin(x) 与 y=x 在原点附近',
-                xaxis: {range: [-1.5, 1.5]},
-                yaxis: {range: [-1.5, 1.5], scaleanchor: "x", scaleratio: 1},
-                autosize: true
-            }, {responsive: true});
+                 {
+                     x: Array.from({length: 101}, (_, i) => -1.5 + i * 0.03),
+                     y: Array.from({length: 101}, (_, i) => Math.sin(-1.5 + i * 0.03)),
+                     mode: 'lines',
+                     name: 'y = sin(x)',
+                     line: {color: 'blue'}
+                 },
+                 {
+                     x: [-1.5, 1.5],
+                     y: [-1.5, 1.5],
+                     mode: 'lines',
+                     name: 'y = x',
+                     line: {color: 'orange', dash: 'dash'}
+                 }
+             ], {
+                 title: '洛必达法则几何意义：y=sin(x) 与 y=x 在原点附近',
+                 xaxis: {range: [-1.5, 1.5]},
+                 yaxis: {range: [-1.5, 1.5], scaleanchor: "x", scaleratio: 1},
+                 autosize: true
+             }, {responsive: true});
              plotRendered.challenge = true;
         }
 
 
-        // --- 4. 微分模块 (Differential) ---
+        // --- 4. 微分模块 (Differential) --- (原代码保留)
         function initDifferentialPlot() {
             const plotDiv = document.getElementById('differential-plot');
             const dxSlider = document.getElementById('delta-x');
@@ -747,7 +951,7 @@
             plotRendered.differential = true;
         }
 
-        // 泰勒多项式交互图表
+        // 泰勒多项式交互图表 (原代码保留)
         function initTaylorPlot() {
             const plotDiv = document.getElementById('taylor-plot');
             const nSlider = document.getElementById('taylor-n');
@@ -781,7 +985,7 @@
         }
 
 
-        // --- 5. 定积分模块 (Integral) ---
+        // --- 5. 定积分模块 (Integral) --- (原代码保留)
         function initIntegralPlot() {
             const plotDiv = document.getElementById('integral-plot');
             const nSlider = document.getElementById('num-rectangles');
@@ -830,7 +1034,7 @@
             plotRendered.integral = true;
         }
         
-        // MVT-I 交互图表
+        // MVT-I 交互图表 (原代码保留)
         function initMVTIPlot() {
             const plotDiv = document.getElementById('mvti-plot');
             const a = 1;
@@ -881,12 +1085,327 @@
             plotRendered.mvti = true;
         }
 
-        // --- 6. 页面初始化 ---
+        
+        // --- 6. 多项式拟合模块 (Polyfit) 逻辑 ---
+        
+        // 辅助函数：将浮点数（如果可能）转化为 KaTeX 格式的分数表示
+        function toFraction(value) {
+            const maxDenominator = 24; 
+            for (let d = 1; d <= maxDenominator; d++) {
+                const numerator = Math.round(value * d);
+                // 允许微小误差
+                if (Math.abs(value * d - numerator) < 1e-6) {
+                    if (d === 1) return numerator.toString(); // 整数
+                    return `\\frac{${numerator}}{${d}}`; // 返回 KaTeX 格式的分数
+                }
+            }
+            return value.toFixed(4); // 无法简单表示则返回小数
+        }
+
+        /**
+         * 牛顿差分法插值计算 (仅适用于四项序列)
+         * @param {number[]} sequence - 包含四个元素的数组 [a1, a2, a3, a4]。
+         * @returns {{formula: string, polynomialFn: function, a5: number}} - 返回 KaTeX 格式的多项式和下一项 a5。
+         */
+        function interpolate(sequence) {
+            const [a1, a2, a3, a4] = sequence;
+
+            // 1. 计算差分表
+            const d1_1 = a2 - a1;
+            const d1_2 = a3 - a2;
+            const d1_3 = a4 - a3;
+
+            const d2_1 = d1_2 - d1_1;
+            const d2_2 = d1_3 - d1_2;
+
+            const d3_1 = d2_2 - d2_1;
+
+            // 2. 牛顿差分公式系数
+            const C0 = a1;
+            const C1 = d1_1;
+            const C2 = d2_1 / 2;
+            const C3 = d3_1 / 6; 
+
+            // 3. 构建多项式 P(n) 的展开式: A*n^3 + B*n^2 + C*n + D
+            const A = C3;
+            const B = C2 - 6 * C3;
+            const C = C1 - 3 * C2 + 11 * C3;
+            const D = C0 - C1 + 2 * C2 - 6 * C3;
+            
+            // 4. 返回可计算的函数
+            const polynomialFn = (n) => {
+                return A * Math.pow(n, 3) + B * Math.pow(n, 2) + C * n + D;
+            };
+
+            // 5. 格式化输出公式为 KaTeX 字符串
+            let formula = 'a_n = ';
+            const terms = [
+                { coef: A, power: 3, label: 'n^3' },
+                { coef: B, power: 2, label: 'n^2' },
+                { coef: C, power: 1, label: 'n' },
+                { coef: D, power: 0, label: '' }
+            ];
+
+            let isFirstTerm = true;
+            for (const term of terms) {
+                // 忽略绝对值小于 1e-9 的项
+                if (Math.abs(term.coef) > 1e-9) { 
+                    const sign = term.coef > 0 ? (isFirstTerm ? '' : ' + ') : ' - ';
+                    const coefAbs = Math.abs(term.coef);
+                    
+                    let coefStr = '';
+                    
+                    if (term.power > 0) {
+                        if (Math.abs(coefAbs - 1) < 1e-9) {
+                            coefStr = ''; // 系数为 1 或 -1 时省略 1
+                        } else {
+                            coefStr = toFraction(coefAbs);
+                        }
+                        formula += sign + coefStr + term.label;
+                    } else { // 常数项
+                        formula += sign + toFraction(coefAbs);
+                    }
+                    
+                    isFirstTerm = false;
+                }
+            }
+            
+            // 确保开头的空格被移除
+            return { formula: formula.trim(), polynomialFn: polynomialFn };
+        }
+
+        // 绑定到按钮和输入框的函数
+        window.calculatePolyfit = function() {
+            const a1 = parseFloat(document.getElementById('poly-a1').value);
+            const a2 = parseFloat(document.getElementById('poly-a2').value);
+            const a3 = parseFloat(document.getElementById('poly-a3').value);
+            const a4 = parseFloat(document.getElementById('poly-a4').value);
+
+            const outputDiv = document.getElementById('polyfitFormulaOutput');
+            const a5OutputDiv = document.getElementById('polyfitA5Output');
+            a5OutputDiv.innerHTML = '';
+
+            if (isNaN(a1) || isNaN(a2) || isNaN(a3) || isNaN(a4)) {
+                outputDiv.textContent = '请确保所有输入均为数字。';
+                a5OutputDiv.textContent = 'N/A';
+                return;
+            }
+
+            const sequence = [a1, a2, a3, a4];
+            const result = interpolate(sequence);
+
+            // 1. 使用 KaTeX 渲染公式
+            katex.render(result.formula, outputDiv, { throwOnError: false, displayMode: true });
+
+            // 2. 计算并显示 a5 到 a10 的预测值
+            const predictions = [];
+            for (let n = 5; n <= 10; n++) {
+                const an = result.polynomialFn(n);
+                predictions.push(Math.round(an));
+            }
+
+            const predictionsText = `数列第5-10项：${predictions.join(', ')}`;
+            a5OutputDiv.textContent = predictionsText;
+        }
+
+
+        // --- 7. 科学计算器模块 (Calculator) 逻辑 ---
+
+        const calcDisplay = document.getElementById('calc-display');
+        let currentInput = '0';
+        let previousInput = '';
+        let operator = null;
+        let waitingForSecondOperand = false;
+
+        // 辅助函数：安全执行表达式
+        const safeEval = (expr) => {
+            try {
+                // 使用 Function 构造函数来安全地执行表达式，限制其作用域
+                return Function('return ' + expr)();
+            } catch (e) {
+                return 'Error';
+            }
+        };
+
+        // 核心运算逻辑
+        const performCalculation = (op, first, second) => {
+            first = parseFloat(first);
+            second = parseFloat(second);
+            
+            if (op === '+') return first + second;
+            if (op === '-') return first - second;
+            if (op === '*') return first * second;
+            if (op === '/') {
+                if (second === 0) return 'Error: Div by 0';
+                return first / second;
+            }
+            if (op === '%') return first % second;
+            if (op === 'power_n') return Math.pow(first, second);
+            if (op === 'power_y') return Math.pow(first, second);
+            
+            return second;
+        };
+
+        // 单操作数函数
+        const handleFunction = (func) => {
+            const value = parseFloat(currentInput);
+            let result;
+
+            if (isNaN(value)) {
+                currentInput = 'Error';
+                updateDisplay();
+                return;
+            }
+
+            switch (func) {
+                case 'sqrt':
+                    result = Math.sqrt(value);
+                    break;
+                case 'sin':
+                    result = Math.sin(value);
+                    break;
+                case 'cos':
+                    result = Math.cos(value);
+                    break;
+                case 'tan':
+                    result = Math.tan(value);
+                    break;
+                case 'log':
+                    result = Math.log(value); // ln (自然对数)
+                    break;
+                case 'exp':
+                    result = Math.exp(value); // e^x
+                    break;
+                case 'power_2':
+                    result = Math.pow(value, 2);
+                    break;
+                case 'root_2':
+                    result = Math.sqrt(value);
+                    break;
+                case 'factorial':
+                    if (value < 0 || value % 1 !== 0) {
+                        result = 'Error: n! invalid';
+                    } else {
+                        let res = 1;
+                        for (let i = 2; i <= value; i++) res *= i;
+                        result = res;
+                    }
+                    break;
+                default:
+                    return;
+            }
+            currentInput = result.toString().includes('Error') ? result.toString() : result.toFixed(10).replace(/\.?0+$/, "");
+            updateDisplay();
+        };
+
+        // 显示更新
+        const updateDisplay = () => {
+            // 使用 KaTeX 渲染数学常数，但这会影响输入，因此我们保持纯文本
+            calcDisplay.textContent = currentInput;
+            // 确保渲染 Pi 和 e
+            calcDisplay.innerHTML = calcDisplay.textContent
+                .replace(/3\.1415926535/g, '<span data-latex-inline="\\pi"></span>')
+                .replace(/2\.7182818284/g, '<span data-latex-inline="e"></span>');
+            renderAllKatex();
+        };
+
+
+        // 事件处理主函数
+        const handleButtonClick = (button) => {
+            const value = button.getAttribute('data-value');
+            const op = button.getAttribute('data-op');
+            const clear = button.getAttribute('data-clear');
+            const func = button.getAttribute('data-function');
+            const constValue = button.getAttribute('data-value');
+
+            // 1. 处理数字和常数输入
+            if (value && value.match(/[0-9.]/)) {
+                if (waitingForSecondOperand) {
+                    currentInput = value === '.' ? '0.' : value;
+                    waitingForSecondOperand = false;
+                } else if (currentInput === '0' && value !== '.') {
+                    currentInput = value;
+                } else if (value === '.' && currentInput.includes('.')) {
+                    // Do nothing
+                } else {
+                    currentInput += value;
+                }
+            } else if (constValue) { // 专门处理 Pi 和 e
+                currentInput = safeEval(constValue).toFixed(10).replace(/\.?0+$/, "");
+            }
+            
+            // 2. 处理清除操作
+            if (clear) {
+                if (clear === 'all') {
+                    currentInput = '0';
+                    previousInput = '';
+                    operator = null;
+                } else if (clear === 'entry') {
+                    currentInput = '0';
+                }
+            }
+            
+            // 3. 处理单操作数函数
+            if (func) {
+                // 特殊处理 n次方 和 n次根 (需要两个操作数)
+                if (func === 'power_n' || func === 'power_y') {
+                    // 视为普通操作符，等待第二个操作数
+                    handleOperator(func);
+                } else {
+                    handleFunction(func);
+                }
+            }
+            
+            // 4. 处理运算符
+            if (op) {
+                handleOperator(op);
+            }
+            
+            updateDisplay();
+        };
+
+        const handleOperator = (nextOperator) => {
+            const inputValue = parseFloat(currentInput);
+
+            if (previousInput && operator && !waitingForSecondOperand) {
+                 // 如果前一个操作符和第一个操作数都存在，计算结果
+                 const result = performCalculation(operator, previousInput, inputValue);
+                 currentInput = result.toString().includes('Error') ? result.toString() : result.toFixed(10).replace(/\.?0+$/, "");
+                 previousInput = currentInput;
+            } else {
+                previousInput = currentInput;
+            }
+
+            operator = nextOperator === '=' ? null : nextOperator;
+            waitingForSecondOperand = true;
+        };
+        
+        // 绑定所有计算器按钮的点击事件
+        const setupCalculator = () => {
+            document.querySelectorAll('.calculator-grid button').forEach(button => {
+                // 确保只绑定一次
+                if (!button.onclick) {
+                   button.onclick = () => handleButtonClick(button);
+                }
+            });
+            updateDisplay();
+            plotRendered.calculator = true;
+        };
+        
+        // --- 8. 页面初始化 ---
         document.addEventListener("DOMContentLoaded", () => {
             renderAllKatex();
             // 首次加载，仅初始化第一个页面的图表
-            // switchPage 负责在激活页面时调用 init 函数
             switchPage('derivative');
+            
+            // 为多项式拟合输入框添加事件监听器
+            const inputs = ['poly-a1', 'poly-a2', 'poly-a3', 'poly-a4'];
+            inputs.forEach(id => {
+                document.getElementById(id).addEventListener('input', calculatePolyfit);
+            });
+            
+            // 初始化计算器 (在页面被激活时会再次调用 updateDisplay 和 renderAllKatex)
+            setupCalculator();
         });
     </script>
 </body>
