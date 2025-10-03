@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF--8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>微积分交互式学习中心 | math.lc</title>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bignumber.js/bignumber.min.js"></script>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <button id="hamburger-btn" aria-label="打开导航菜单">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+
+        <div class="header-title">
+            <span style="font-weight: normal;">math.</span><span class="domain-l">l</span>earning<span class="domain-c">c</span>enter
+        </div>
+        <p style="margin-top: -15px; font-size: 1.1em; opacity: 0.8; color: white;">
+            math.lc 数学学习中心</p>
+
+        <nav id="sidebar-nav">
+            <a href="derivative.html" id="tab-derivative">导数 f'(x)</a>
+            <a href="limits.html" id="tab-limits">极限 lim</a>
+            <a href="differential.html" id="tab-differential">微分 dy</a>
+            <a href="integral.html" id="tab-integral">定积分 ∫ f(x) dx</a>
+            <a href="polyfit.html" id="tab-polyfit">多项式拟合 <span class="latex-box" data-original-latex="a_n"></span></a>
+            <a href="equation-solver.html" id="tab-equation-solver">一元方程求解</a>
+            <a href="calculator.html" id="tab-calculator">科学计算器</a>
+            <a href="precision-calc.html" id="tab-precision-calc">高精度计算 <span class="latex-box" data-original-latex="\sqrt[\infty]{x}"></span></a>
+        </nav>
+    </header>
+
+    <div id="sidebar-overlay"></div>
+
+    <main id="content-container">
+        <p style="text-align: center; padding: 50px;">正在加载内容...</p>
+    </main>
+
+    <footer>
+        <p>&copy; 交互式微积分学习 | 纯静态网页实现</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
