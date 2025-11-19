@@ -2,11 +2,11 @@
  * =================================================================
  * script.js - Math Learning Center Core Logic (Final Optimized Version)
  * -----------------------------------------------------------------
- * * Update Log:
- * 1. Implemented Lazy Loading for 'Plotly' and 'BigNumber.js' to improve initial load speed (LCP).
- * 2. Fixed Plotly version to v2.27.0 to resolve console warnings.
- * 3. Added UI blocking (loading state) during high-precision calculations to improve UX.
- *
+ * Optimization Summary:
+ * 1. Lazy Loading: 'Plotly' & 'BigNumber.js' load only when needed.
+ * 2. Version Fix: Using Plotly v2.27.0 to prevent console warnings.
+ * 3. UX Improvement: UI locking during high-precision calculations.
+ * 4. TBT Optimization: Defer KaTeX rendering to unblock main thread.
  * =================================================================
  */
 
@@ -36,25 +36,16 @@ const x_vals_default = Array.from({ length: 101 }, (_, i) => -5 + i * 0.1);
 const y_vals_deriv = x_vals_default.map(f_deriv);
 
 
-// --- 2. Dynamic Resource Loader (Fixes 'Unused JS' & 'Render Blocking') ---
+// --- 2. Dynamic Resource Loader (Lazy Loading) ---
 
 const loadedLibraries = new Set();
 
-/**
- * Dynamically loads a script file.
- * @param {string} url - The URL of the script.
- * @param {string} globalName - The global variable name (e.g., 'Plotly') to check existence.
- */
 async function loadLibrary(url, globalName) {
-    // If tracked as loaded, skip
     if (loadedLibraries.has(url)) return;
-
-    // If global variable exists (maybe loaded by other means), mark as loaded and skip
     if (globalName && window[globalName]) {
         loadedLibraries.add(url);
         return;
     }
-
     return new Promise((resolve, reject) => {
         const script = document.createElement('script');
         script.src = url;
@@ -72,17 +63,10 @@ async function loadLibrary(url, globalName) {
     });
 }
 
-/**
- * Loads specific libraries based on the current page ID.
- */
 async function loadRequiredLibraries(pageId) {
-    // 1. BigNumber.js: Only for Precision Calculator
     if (pageId === 'precision-calc') {
         await loadLibrary('https://cdn.jsdelivr.net/npm/bignumber.js/bignumber.min.js', 'BigNumber');
     }
-
-    // 2. Plotly.js: Only for visualization pages
-    // Using v2.27.0 to fix 'outdated version' warning in Lighthouse
     const plotlyPages = ['derivative', 'limits', 'differential', 'integral', 'polyfit'];
     if (plotlyPages.includes(pageId)) {
         await loadLibrary('https://cdn.plot.ly/plotly-2.27.0.min.js', 'Plotly');
@@ -90,7 +74,7 @@ async function loadRequiredLibraries(pageId) {
 }
 
 
-// --- 3. Page Loading & Initialization Logic ---
+// --- 3. Page Loading & Initialization ---
 
 function renderAllKatex() {
     if (typeof katex === 'undefined') return;
@@ -126,7 +110,6 @@ function relayoutPlots(plotIds) {
     setTimeout(() => {
         plotIds.forEach(id => {
             const plotDiv = document.getElementById(id);
-            // Ensure Plotly is loaded before calling its methods
             if (plotDiv && typeof Plotly !== 'undefined' && plotDiv._fullLayout) {
                 Plotly.relayout(plotDiv, { autosize: true });
             }
@@ -152,16 +135,11 @@ function initializePageScript(pageId) {
 async function loadPage(pageUrl) {
     try {
         const pageId = pageUrl.split('.')[0];
-        
-        // [Optimization] Preload required libraries BEFORE fetching HTML content
-        await loadRequiredLibraries(pageId);
-
+        await loadRequiredLibraries(pageId); // Wait for libraries
         const response = await fetch(pageUrl);
         if (!response.ok) throw new Error(`无法加载页面: ${response.status} ${response.statusText}`);
         const content = await response.text();
-        
         contentContainer.innerHTML = content;
-        
         renderAllKatex();
         initializePageScript(pageId);
     } catch (error) {
@@ -171,7 +149,7 @@ async function loadPage(pageUrl) {
 }
 
 
-// --- 4. Event Listeners & Entry Point ---
+// --- 4. Event Listeners (Entry Point) ---
 
 document.addEventListener('DOMContentLoaded', () => {
     const hamburgerBtn = document.getElementById('hamburger-btn');
@@ -209,11 +187,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     handleInitialLoad();
     window.addEventListener('popstate', handleInitialLoad);
-    renderAllKatex();
+    
+    // [TBT Optimization] Defer KaTeX rendering to next tick to unblock main thread
+    setTimeout(renderAllKatex, 0);
 });
 
+
 // =================================================================
-// --- Equation Solver Module ---
+// --- Module: Equation Solver ---
 // =================================================================
 const EquationSolvers = {
     TOLERANCE: 1e-9,
@@ -226,16 +207,10 @@ const EquationSolvers = {
         const delta = b * b - 4 * a * c;
         if (delta >= 0) {
             const sqrtDelta = Math.sqrt(delta);
-            return [
-                { real: (-b + sqrtDelta) / (2 * a), imag: 0 },
-                { real: (-b - sqrtDelta) / (2 * a), imag: 0 }
-            ];
+            return [{ real: (-b + sqrtDelta) / (2 * a), imag: 0 }, { real: (-b - sqrtDelta) / (2 * a), imag: 0 }];
         } else {
             const sqrtDeltaAbs = Math.sqrt(-delta);
-            return [
-                { real: -b / (2 * a), imag: sqrtDeltaAbs / (2 * a) },
-                { real: -b / (2 * a), imag: -sqrtDeltaAbs / (2 * a) }
-            ];
+            return [{ real: -b / (2 * a), imag: sqrtDeltaAbs / (2 * a) }, { real: -b / (2 * a), imag: -sqrtDeltaAbs / (2 * a) }];
         }
     },
     solveCubic: (a, b, c, d) => {
@@ -249,20 +224,12 @@ const EquationSolvers = {
             const sqrtDelta = Math.sqrt(delta);
             const u = Math.cbrt(-q / 2 + sqrtDelta);
             const v = Math.cbrt(-q / 2 - sqrtDelta);
-            roots = [
-                { real: u + v, imag: 0 },
-                { real: -(u + v) / 2, imag: (u - v) * Math.sqrt(3) / 2 },
-                { real: -(u + v) / 2, imag: -(u - v) * Math.sqrt(3) / 2 }
-            ];
+            roots = [{ real: u + v, imag: 0 }, { real: -(u + v) / 2, imag: (u - v) * Math.sqrt(3) / 2 }, { real: -(u + v) / 2, imag: -(u - v) * Math.sqrt(3) / 2 }];
         } else {
             const rho = Math.sqrt(-(p ** 3) / 27);
             const theta = Math.acos(-q / (2 * rho));
             const term = 2 * Math.cbrt(rho);
-            roots = [
-                { real: term * Math.cos(theta / 3), imag: 0 },
-                { real: term * Math.cos((theta + 2 * Math.PI) / 3), imag: 0 },
-                { real: term * Math.cos((theta + 4 * Math.PI) / 3), imag: 0 }
-            ];
+            roots = [{ real: term * Math.cos(theta / 3), imag: 0 }, { real: term * Math.cos((theta + 2 * Math.PI) / 3), imag: 0 }, { real: term * Math.cos((theta + 4 * Math.PI) / 3), imag: 0 }];
         }
         return roots.map(root => ({ real: root.real - b / 3, imag: root.imag }));
     },
@@ -297,15 +264,10 @@ const EquationFormatter = {
         return (isNegative ? "-" : "") + `\\frac{${simplifiedNum}}{${simplifiedDen}}`;
     },
     formatRoot: (root) => {
-        if (Math.abs(root.imag) < EquationSolvers.TOLERANCE) {
-            return EquationFormatter.formatNumber(root.real);
-        }
+        if (Math.abs(root.imag) < EquationSolvers.TOLERANCE) return EquationFormatter.formatNumber(root.real);
         const realPart = EquationFormatter.formatNumber(root.real);
         const imagPart = EquationFormatter.formatNumber(Math.abs(root.imag));
-        if (realPart === "0") {
-            if (imagPart === "1") return (root.imag < 0 ? "-" : "") + "i";
-            return (root.imag < 0 ? "-" : "") + imagPart + "i";
-        }
+        if (realPart === "0") return (imagPart === "1") ? (root.imag < 0 ? "-" : "") + "i" : (root.imag < 0 ? "-" : "") + imagPart + "i";
         if (imagPart === "1") return `${realPart} ${root.imag < 0 ? "-" : "+"} i`;
         return `${realPart} ${root.imag < 0 ? "-" : "+"} ${imagPart}i`;
     }
@@ -324,40 +286,21 @@ function initEquationSolver() {
         let html = '';
         for (let i = 0; i <= degree; i++) {
             const powerIndex = 4 - degree + i;
-            html += `
-                <label for="coeff-${coeffs[i]}">${coeffs[i]}=</label>
-                <input type="number" id="coeff-${coeffs[i]}" value="${i === 0 ? 1 : 0}"> 
-                ${powers[powerIndex] ? `<span>${powers[powerIndex]}</span>` : ''}
-                ${i < degree ? '<span style="font-weight:bold; margin: 0 5px;">+</span>' : ''}
-            `;
+            html += `<label for="coeff-${coeffs[i]}">${coeffs[i]}=</label><input type="number" id="coeff-${coeffs[i]}" value="${i === 0 ? 1 : 0}"> ${powers[powerIndex] ? `<span>${powers[powerIndex]}</span>` : ''}${i < degree ? '<span style="font-weight:bold; margin: 0 5px;">+</span>' : ''}`;
         }
         html += '<span style="font-weight:bold; margin: 0 5px;">= 0</span>';
         inputsContainer.innerHTML = html;
     }
     function solve() {
         const degree = parseInt(degreeSelector.value);
-        const coeffs = ['a', 'b', 'c', 'd', 'e'].slice(0, degree + 1)
-            .map(c => parseFloat(document.getElementById(`coeff-${c}`).value));
-        if (coeffs.some(isNaN)) {
-            resultsDiv.innerHTML = '<p style="color:red;">错误：所有系数都必须是数字。</p>';
-            return;
-        }
-        if (Math.abs(coeffs[0]) < EquationSolvers.TOLERANCE) {
-            resultsDiv.innerHTML = '<p style="color:red;">错误：最高次项系数 a 不能为 0。</p>';
-            return;
-        }
+        const coeffs = ['a', 'b', 'c', 'd', 'e'].slice(0, degree + 1).map(c => parseFloat(document.getElementById(`coeff-${c}`).value));
+        if (coeffs.some(isNaN)) { resultsDiv.innerHTML = '<p style="color:red;">错误：所有系数都必须是数字。</p>'; return; }
+        if (Math.abs(coeffs[0]) < EquationSolvers.TOLERANCE) { resultsDiv.innerHTML = '<p style="color:red;">错误：最高次项系数 a 不能为 0。</p>'; return; }
         const solverFn = [null, EquationSolvers.solveLinear, EquationSolvers.solveQuadratic, EquationSolvers.solveCubic, EquationSolvers.solveQuartic][degree];
         const solutions = solverFn(...coeffs);
         const uniqueSolutions = [];
-        solutions.forEach(sol => {
-            if (!uniqueSolutions.some(usol => Math.abs(usol.real - sol.real) < EquationSolvers.TOLERANCE && Math.abs(usol.imag - sol.imag) < EquationSolvers.TOLERANCE)) {
-                uniqueSolutions.push(sol);
-            }
-        });
-        if (uniqueSolutions.length === 0) {
-            resultsDiv.textContent = "无解或所有系数均为0.";
-            return;
-        }
+        solutions.forEach(sol => { if (!uniqueSolutions.some(usol => Math.abs(usol.real - sol.real) < EquationSolvers.TOLERANCE && Math.abs(usol.imag - sol.imag) < EquationSolvers.TOLERANCE)) uniqueSolutions.push(sol); });
+        if (uniqueSolutions.length === 0) { resultsDiv.textContent = "无解或所有系数均为0."; return; }
         const latexString = uniqueSolutions.map((root, i) => `x_{${i + 1}} = ${EquationFormatter.formatRoot(root)}`).join('\\\\');
         resultsDiv.innerHTML = `<div class="katex-render" data-katex="${latexString}"></div>`;
         renderAllKatex();
@@ -368,7 +311,7 @@ function initEquationSolver() {
 }
 
 // =================================================================
-// --- Other Modules Initialization (Plots) ---
+// --- Module: Plot Initialization ---
 // =================================================================
 
 function initDerivativePlot() {
@@ -392,6 +335,9 @@ function initPolyfit() {
 function generalizedInterpolate(t){const e=t.length;if(e<2)return{formula:"a_n = "+(t[0]||"..."),polynomialFn:e=>t[0]||0};const o=t.map((t,e)=>({x:e+1,y:t})),a=o.map(t=>t.y);for(let t=1;t<e;t++)for(let n=e-1;n>=t;n--)a[n]=(a[n]-a[n-1])/(o[n].x-o[n-t].x);const n=t=>{let e=a[0],n=1;for(let l=1;l<o.length;l++)n*=t-o[l-1].x,e+=n*a[l];return e};let l="a_n = "+a[0].toFixed(3);for(let t=1;t<e;t++){const e=a[t];if(Math.abs(e)<1e-9)continue;l+=(e>0?" + ":" - ")+Math.abs(e).toFixed(3);for(let o=0;o<t;o++)l+=`(n - ${o+1})`}return{formula:l,polynomialFn:n}}
 window.calculatePolyfit=function(){const t=parseInt(document.getElementById("polyfit-terms").value),e=[];for(let o=1;o<=t;o++){const t=parseFloat(document.getElementById(`poly-a${o}`).value);if(isNaN(t))return void(document.getElementById("polyfitFormulaOutput").textContent="请确保所有输入均为数字。");e.push(t)}const o=generalizedInterpolate(e);katex.render(o.formula,document.getElementById("polyfitFormulaOutput"),{throwOnError:!1,displayMode:!0,trust:!0});const a=[];for(let n=1;n<=5;n++)a.push(Math.round(o.polynomialFn(t+n)));const n=`a_${t+1} 至 a_${t+5}：${a.join(", ")}`;document.getElementById("polyfitPredictionsOutput").textContent=n};
 
+// =================================================================
+// --- Module: Scientific Calculator ---
+// =================================================================
 function setupCalculator() {
     const calcDisplay = document.getElementById('calc-display');
     let currentInput = '0', previousInput = '', operator = null, waitingForSecondOperand = false;
@@ -452,7 +398,9 @@ function setupCalculator() {
     updateDisplay();
 }
 
-// [UX Update] Precision Calculator with Loading State
+// =================================================================
+// --- Module: High Precision Calculator (Optimized) ---
+// =================================================================
 function initPrecisionCalculator() {
     const precisionInput = document.getElementById('precision-digits');
     const sqrtInput = document.getElementById('sqrt-input');
