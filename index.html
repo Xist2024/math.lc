@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <title>Math Learning Center (math.lc) - 交互式微积分与数学可视化工具</title>
+    <meta name="description" content="math.lc 是一个免费的数学学习中心。提供在线微积分可视化教程（导数、积分、极限）、科学计算器、多项式拟合工具及高精度无理数计算。">
+    <meta name="keywords" content="Math Learning Center, math.lc, 微积分可视化, 在线科学计算器, 导数定义, 黎曼和, 泰勒展开, 高精度计算, 数学工具">
+    <meta name="author" content="Shanyu (Xiong Qi)">
+
+    <meta property="og:title" content="Math Learning Center (math.lc)">
+    <meta property="og:description" content="可视化微积分学习：从极限到定积分，包含牛顿法开方与高精度计算工具。">
+    <meta property="og:image" content="https://math.lc/icon.png"> <meta property="og:url" content="https://math.lc/">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Math Learning Center">
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "Math Learning Center",
+      "url": "https://math.lc",
+      "applicationCategory": "EducationalApplication",
+      "operatingSystem": "Any",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "CNY"
+      },
+      "featureList": [
+        "交互式导数与切线演示",
+        "黎曼和定积分可视化",
+        "15000位高精度数学计算器",
+        "多项式插值与拟合工具",
+        "一元N次方程求解器"
+      ]
+    }
+    </script>
+</head>
+<body>
+    <header>
+        <button id="hamburger-btn" aria-label="打开导航菜单">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+
+        <div class="header-title">
+            <span style="font-weight: normal;">math.</span><span class="domain-l">l</span>earning<span class="domain-c">c</span>enter
+        </div>
+        <p style="margin-top: -15px; font-size: 1.1em; opacity: 0.8; color: white;">
+            math.lc 数学学习中心</p>
+
+        <nav id="sidebar-nav">
+            <a href="derivative.html" id="tab-derivative">导数 f'(x)</a>
+            <a href="limits.html" id="tab-limits">极限 lim</a>
+            <a href="differential.html" id="tab-differential">微分 dy</a>
+            <a href="integral.html" id="tab-integral">定积分 ∫ f(x) dx</a>
+            <a href="polyfit.html" id="tab-polyfit">多项式拟合 <span class="latex-box" data-original-latex="a_n"></span></a>
+            <a href="equation-solver.html" id="tab-equation-solver">一元方程求解</a>
+            <a href="calculator.html" id="tab-calculator">科学计算器</a>
+            <a href="precision-calc.html" id="tab-precision-calc">高精度计算 <span class="latex-box" data-original-latex="\sqrt[\infty]{x}"></span></a>
+        </nav>
+    </header>
+
+    <div id="sidebar-overlay"></div>
+
+    <main id="content-container">
+    <div id="seo-fallback" style="padding: 50px; text-align: center;">
+        <p>正在加载交互式组件...</p>
+        
+        <noscript>
+            <h1>Math Learning Center (math.lc)</h1>
+            <p>math.lc 是一个免费的在线数学工具站，提供以下功能：</p>
+            <ul>
+                <li><strong>微积分可视化：</strong>导数切线演示、黎曼和定积分模拟、极限定义。</li>
+                <li><strong>在线工具：</strong>科学计算器、一元N次方程求解器、多项式拟合。</li>
+                <li><strong>高精度计算：</strong>支持 15000 位精度的圆周率(π)、自然常数(e)及开方运算。</li>
+            </ul>
+        </noscript>
+    </div>
+</main>
+
+    <footer>
+        <p>&copy; 交互式微积分学习 | 纯静态网页实现</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

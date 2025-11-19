@@ -1,0 +1,58 @@
+<script>if(!document.getElementById("content-container")){window.location.href = "/#" + window.location.pathname.split("/").pop().replace(".html","");}</script>
+<section id="precision-calc" class="concept-module">
+    <h2>7. 无理数高精度计算</h2>
+
+    <div class="content-box">
+        <p>本工具利用 <strong>bignumber.js</strong> 库在浏览器中进行大数运算。请注意：这是一项计算密集型任务，大精度计算最多可能需要 10 秒钟，期间页面可能短暂无响应，请耐心等待。</p>
+         <p><strong>精度限制：</strong><br>
+        - 计算 <span data-latex-inline="\pi"></span> 和 <span data-latex-inline="e"></span>：最高 <strong>2,000</strong> 位小数。<br>
+        - 计算 <span data-latex-inline="\phi"></span> (黄金分割) 和平方根 <span data-latex-inline="\sqrt{x}"></span>：最高 <strong>15,000</strong> 位小数。
+        </p>
+    </div>
+
+    <h3>交互工具：高精度计算器</h3>
+    <div class="interactive-area">
+        <div class="controls precision-controls">
+            <div class="control-group">
+                <label for="precision-digits">1. 输入计算精度 (小数位数):</label>
+                <input type="number" id="precision-digits" value="1000" min="10" max="15000">
+            </div>
+
+            <div class="control-group">
+                <label>2. 选择要计算的常数:</label>
+                <div class="button-group">
+                    <button class="precision-button" id="calc-pi-btn">计算圆周率π</button>
+                    <button class="precision-button" id="calc-e-btn">计算自然常数e</button>
+                    <button class="precision-button" id="calc-phi-btn">计算黄金分割比φ</button>
+                </div>
+            </div>
+
+            <div class="control-group">
+                 <label for="sqrt-input">3. 或计算平方根 <span data-latex-inline="\sqrt{x}"></span>:</label>
+                <input type="number" id="sqrt-input" placeholder="输入 1-10000 的数字" value="2" min="1" max="10000">
+                <button class="precision-button" id="calc-sqrt-btn">计算平方根</button>
+            </div>
+        </div>
+
+        <div class="precision-output-container" style="flex: 2;">
+             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <h4 style="margin: 0;">计算结果:</h4>
+                <button class="precision-button download-btn" id="download-result-btn">下载 .txt 文件</button>
+            </div>
+            <div id="precision-status"></div>
+            <textarea id="precision-output" readonly>请选择一个计算任务...</textarea>
+        </div>
+    </div>
+
+    <h3>算法说明</h3>
+     <div class="theorem-box">
+        <h4>计算方法</h4>
+        <p>本工具采用以下数值算法来获得高精度结果：</p>
+        <ul>
+            <li><strong>平方根 (<span data-latex-inline="\sqrt{x}"></span>):</strong> 使用牛顿迭代法 (<span data-latex-inline="\text{Newton's Method}"></span>) 进行高速收敛。该方法从一个初始猜测值开始，通过公式 <span data-latex-inline="x_{n+1} = \frac{1}{2}(x_n + \frac{S}{x_n})"></span> 快速逼近真实值。</li>
+            <li><strong>圆周率 (<span data-latex-inline="\pi"></span>):</strong> 基于高斯-勒让德算法 (<span data-latex-inline="\text{Gauss-Legendre Algorithm}"></span>) 实现。这是一个二次收敛算法，每次迭代都能将有效位数加倍。</li>
+             <li><strong>自然常数 (<span data-latex-inline="e"></span>):</strong> 通过泰勒级数展开式 <span data-latex-inline="e = \sum_{n=0}^{\infty} \frac{1}{n!} = \frac{1}{0!} + \frac{1}{1!} + \frac{1}{2!} + \dots"></span> 进行求和计算。</li>
+            <li><strong>黄金分割 (<span data-latex-inline="\phi"></span>):</strong> 通过其精确公式 <span data-latex-inline="\phi = \frac{1 + \sqrt{5}}{2}"></span> 计算，依赖于高精度的 <span data-latex-inline="\sqrt{5}"></span> 值。</li>
+        </ul>
+    </div>
+</section>

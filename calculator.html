@@ -1,0 +1,53 @@
+<script>if(!document.getElementById("content-container")){window.location.href = "/#" + window.location.pathname.split("/").pop().replace(".html","");}</script>
+<section id="calculator" class="concept-module">
+    <h2>6. 科学计算器：基础运算与数学函数</h2>
+
+    <div class="content-box">
+        <p>本计算器支持标准的四则运算、高阶幂次和根号运算，以及常用三角函数。请使用 <span data-latex-inline="\text{Rad}"></span> (弧度) 作为三角函数的输入单位。输出结果保留 10 位小数精度。</p>
+    </div>
+
+    <div class="calculator-grid">
+        <div id="calc-display" data-current-input="0" data-previous-input="" data-operator="">0</div>
+
+        <button class="calc-button" data-value="Math.PI">$\pi$</button>
+        <button class="calc-button" data-value="Math.E">$e$</button>
+        <button class="calc-button" data-function="power_n">$x^n$</button>
+        <button class="calc-button" data-function="power_y">$x^y$</button>
+        <button class="calc-button" data-function="sqrt">$\sqrt{x}$</button>
+
+        <button class="calc-button" data-function="sin">sin</button>
+        <button class="calc-button" data-function="cos">cos</button>
+        <button class="calc-button" data-function="tan">tan</button>
+        <button class="calc-button" data-function="log">ln</button>
+        <button class="calc-button" data-function="exp">$e^x$</button>
+
+        <button class="calc-button calc-operator" data-clear="all">AC</button>
+        <button class="calc-button calc-operator" data-clear="entry">C</button>
+        <button class="calc-button calc-operator" data-function="factorial">n!</button>
+        <button class="calc-button calc-operator" data-function="power_2">$x^2$</button>
+        <button class="calc-button calc-operator" data-function="root_2">$^2\sqrt{x}$</button>
+
+        <button class="calc-button" data-value="7">7</button>
+        <button class="calc-button" data-value="8">8</button>
+        <button class="calc-button" data-value="9">9</button>
+        <button class="calc-operator" data-op="/">$\div$</button>
+        <button class="calc-operator" data-op="*">$\times$</button>
+
+        <button class="calc-button" data-value="4">4</button>
+        <button class="calc-button" data-value="5">5</button>
+        <button class="calc-button" data-value="6">6</button>
+        <button class="calc-operator" data-op="-">-</button>
+        <button class="calc-operator" data-op="+">+</button>
+
+        <button class="calc-button" data-value="1">1</button>
+        <button class="calc-button" data-value="2">2</button>
+        <button class="calc-button" data-value="3">3</button>
+        <button class="calc-button" data-value="(">(</button>
+        <button class="calc-button" data-value=")">)</button>
+
+        <button class="calc-button" data-value="0">0</button>
+        <button class="calc-button" data-value=".">.</button>
+        <button class="calc-operator" data-op="%">%</button>
+        <button class="calc-button calc-equal" data-op="=" style="grid-column: 4 / -1; width: auto;">=</button>
+    </div>
+</section>

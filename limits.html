@@ -1,0 +1,49 @@
+<script>if(!document.getElementById("content-container")){window.location.href = "/#" + window.location.pathname.split("/").pop().replace(".html","");}</script>
+<section id="limits" class="concept-module">
+    <h2>2. 极限 (Limit)：无限逼近的艺术</h2>
+
+    <h3>历史背景：从直觉到严格定义</h3>
+    <div class="content-box">
+        <p>极限是整个微积分学的基石。早在古希腊，阿基米德在计算圆面积时使用的“穷竭法”，就蕴含了无限逼近的极限思想。然而，在接下来的近两千年里，极限一直依赖于数学家的直觉。牛顿和莱布ニ茨在创立微积分时，使用了含糊的“无穷小量”概念，这导致了逻辑上的不严谨，并引发了著名的“第二次数学危机”。</p>
+        <p>直到19世纪，数学家<strong>柯西 (Cauchy)</strong> 首次尝试为极限给出一个更精确的描述，但他仍然依赖于“无限地接近”这类自然语言。最终，德国数学家<strong>魏尔斯特拉斯 (Weierstrass)</strong> 提出了今天我们所使用的 <span data-latex-inline="\epsilon-\delta"></span> (Epsilon-Delta) 定义，它完全使用代数不等式来刻画极限过程，彻底消除了对直觉的依赖，为微积分提供了坚实的逻辑基础。</p>
+    </div>
+
+    <h3>核心交互：探索 $\epsilon-\delta$ 定义</h3>
+    <p>极限的 <span data-latex-inline="\epsilon-\delta"></span> 定义在几何上非常直观。它描述的是：对于任意一个极小的正数 <span data-latex-inline="\epsilon"></span> (代表 y 轴上的误差范围)，我们总能找到一个正数 <span data-latex-inline="\delta"></span> (代表 x 轴上的邻域范围)，使得所有在点 <span data-latex-inline="c"></span> 的 <span data-latex-inline="\delta"></span>-邻域内的点 <span data-latex-inline="x"></span> (不含 <span data-latex-inline="c"></span> 本身)，其函数值 <span data-latex-inline="f(x)"></span> 都落在极限值 <span data-latex-inline="L"></span> 的 <span data-latex-inline="\epsilon"></span>-邻域内。</p>
+    <p><strong>拖动下方的滑块</strong>：尝试缩小 <span data-latex-inline="\epsilon"></span> 的值，观察图中的 <span data-latex-inline="\delta"></span> 范围（蓝色区域）是如何相应变化的。无论 <span data-latex-inline="\epsilon"></span> 多小，只要我们能找到一个对应的 <span data-latex-inline="\delta > 0"></span>，就证明了极限的存在。</p>
+
+    <div class="interactive-area">
+        <div id="limit-plot" class="plot-container"></div>
+        <div class="controls">
+            <label for="epsilon-slider">选择 $\epsilon$ (误差范围):</label>
+            <input type="range" id="epsilon-slider" min="0.1" max="1.5" value="1" step="0.05">
+            <span id="epsilon-display">ε = 1.00</span>
+            <p>函数: <span data-latex-inline="f(x) = x^2 - x + 2"></span></p>
+            <p>考察点: <span data-latex-inline="\lim_{x \to 2} f(x)"></span></p>
+            <p>极限值: <span data-latex-inline="L = 4"></span></p>
+            <p id="delta-display">对于给定的 ε, 找到的 δ ≈ N/A</p>
+        </div>
+    </div>
+
+    <h3>数学定义：</h3>
+    <p data-katex="\lim_{x \to c} f(x) = L \iff \forall \epsilon > 0, \exists \delta > 0 \text{ s.t. } 0 < |x - c| < \delta \implies |f(x) - L| < \epsilon"></p>
+
+    <h3>定理与法则：夹逼定理 (Squeeze Theorem)</h3>
+    <div class="theorem-box">
+        <h4>夹逼定理 (Squeeze Theorem)</h4>
+        <p>夹逼定理是一个求极限的强大技巧。它指出，如果一个函数 <span data-latex-inline="g(x)"></span> 被“夹在”另外两个函数 <span data-latex-inline="f(x)"></span> 和 <span data-latex-inline="h(x)"></span> 之间，并且在某一点 <span data-latex-inline="c"></span> 附近，上下两个函数都收敛于同一个极限 <span data-latex-inline="L"></span>，那么被夹在中间的函数 <span data-latex-inline="g(x)"></span> 在该点的极限也必定是 <span data-latex-inline="L"></span>。</p>
+        <p data-katex="\text{若 } f(x) \le g(x) \le h(x) \text{ 且 } \lim_{x \to c} f(x) = \lim_{x \to c} h(x) = L, \text{ 则 } \lim_{x \to c} g(x) = L"></p>
+        <p>这个定理最著名的应用就是证明 <span data-latex-inline="\lim_{x \to 0} \frac{\sin(x)}{x} = 1"></span>。</p>
+    </div>
+
+    <div class="exercise-section">
+        <h3>习题与解析</h3>
+        <p><strong>练习 2.1：</strong> 求极限 <span data-latex-inline="\lim_{x \to 3} \frac{x^2 - 9}{x - 3}"></span>。</p>
+        <button class="solution-toggle" onclick="toggleSolution('limit-ex1')">查看解析</button>
+        <div id="limit-ex1" class="solution">
+            <p>解：直接代入 <span data-latex-inline="x=3"></span> 会得到 <span data-latex-inline="\frac{0}{0}"></span> 不定式。我们可以通过因式分解来简化表达式。因为当 <span data-latex-inline="x \to 3"></span> 时，<span data-latex-inline="x \neq 3"></span>，所以 <span data-latex-inline="x-3 \neq 0"></span>，可以进行约分。</p>
+            <p data-katex="\lim_{x \to 3} \frac{(x-3)(x+3)}{x - 3} = \lim_{x \to 3} (x+3)"></p>
+            <p>现在可以直接代入：<span data-latex-inline="3 + 3 = 6"></span>。因此极限值为 6。</p>
+        </div>
+    </div>
+</section>

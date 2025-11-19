@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://math.lc/</loc>
+    <lastmod>2025-11-19</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+  </url>
+  
+  <url>
+    <loc>https://math.lc/derivative.html</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://math.lc/limits.html</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://math.lc/integral.html</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://math.lc/differential.html</loc>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://math.lc/polyfit.html</loc>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://math.lc/equation-solver.html</loc>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://math.lc/precision-calc.html</loc>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://math.lc/calculator.html</loc>
+    <priority>0.6</priority>
+  </url>
+</urlset>

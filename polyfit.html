@@ -1,0 +1,38 @@
+<script>if(!document.getElementById("content-container")){window.location.href = "/#" + window.location.pathname.split("/").pop().replace(".html","");}</script>
+<section id="polyfit" class="concept-module">
+    <h2>5. 多项式拟合：捕捉序列趋势</h2>
+
+    <h3>原理：插值多项式</h3>
+    <div class="content-box">
+        <p>对于任意 <strong><span data-latex-inline="N"></span> 个</strong>数据点，总存在一个唯一的、最高次不超过 <strong><span data-latex-inline="N-1"></span> 次</strong>的多项式可以精确地穿过所有这些点。本工具使用牛顿差分法 (Newton's Divided Differences) 来为您输入的 N 个数字计算出这个唯一的通项公式。</p>
+        <p>该公式能最准确地表示给定序列的内在规律，并用于对后续项进行预测。</p>
+    </div>
+
+    <h3>交互工具：序列拟合与预测</h3>
+    <div class="polyfit-controls">
+        <label for="polyfit-terms">选择数列项数:</label>
+        <select id="polyfit-terms">
+            <option value="3">3 项</option>
+            <option value="4" selected>4 项 </option>
+            <option value="5">5 项 </option>
+            <option value="6">6 项 </option>
+        </select>
+    </div>
+    <p id="polyfit-instruction">请输入数列的前 4 项 (<span data-latex-inline="a_1, a_2, ..., a_4"></span>):</p>
+
+    <div class="polyfit-inputs">
+        <div class="polyfit-input-wrapper" id="wrapper-a1"><input type="number" id="poly-a1" value="1"></div>
+        <div class="polyfit-input-wrapper" id="wrapper-a2"><input type="number" id="poly-a2" value="23"></div>
+        <div class="polyfit-input-wrapper" id="wrapper-a3"><input type="number" id="poly-a3" value="56"></div>
+        <div class="polyfit-input-wrapper" id="wrapper-a4"><input type="number" id="poly-a4" value="89"></div>
+        <div class="polyfit-input-wrapper" id="wrapper-a5" style="display: none;"><input type="number" id="poly-a5" value="156"></div>
+        <div class="polyfit-input-wrapper" id="wrapper-a6" style="display: none;"><input type="number" id="poly-a6" value="234"></div>
+    </div>
+
+    <div class="polyfit-result-box">
+        <h4>拟合结果 <span data-latex-inline="a_n"></span> (通项公式):</h4>
+        <div id="polyfitFormulaOutput" class="polyfit-formula-output"></div>
+        <p><strong>序列后续 5 项值</strong></p>
+        <div id="polyfitPredictionsOutput" class="polyfit-predictions"></div>
+    </div>
+</section>

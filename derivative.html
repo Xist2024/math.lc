@@ -1,0 +1,66 @@
+<script>if(!document.getElementById("content-container")){window.location.href = "/#" + window.location.pathname.split("/").pop().replace(".html","");}</script>
+<section id="derivative" class="concept-module">
+    <h2>1. 导数 (Derivative)：变化率与切线斜率</h2>
+
+    <h3>历史背景：微积分的诞生及其争议</h3>
+    <div class="content-box">
+        <p>导数的概念源于 17 世纪科学界对<strong>瞬时变化</strong>的迫切需求，核心是要解决物理学中的<strong>瞬时速度</strong>和几何学中的<strong>曲线切线斜率</strong>两大难题。在伽利略和开普勒奠定运动学基础后，如何精确描述物体在某一时刻的速度成为了关键。</p>
+        <p><strong>艾萨克·牛顿</strong>（<span data-latex-inline="\text{Isaac Newton}"></span>）于 1665 年前后发展了<strong>“流数术”</strong>，他将变化的量称为“流量”(<span data-latex-inline="\text{fluent}"></span>)，而将变化率称为“流数”(<span data-latex-inline="\text{fluxion}"></span>)，并用小点符号 <span data-latex-inline="\dot{x}"></span> 来表示。牛顿主要关注物理应用，特别是万有引力理论的数学基础。</p>
+        <p>几乎同时，<strong>戈特弗里德·莱布尼茨</strong>（<span data-latex-inline="\text{Gottfried Leibniz}"></span>）提出了更具系统性和符号优势的微分概念。他引入了我们今天使用的 <span data-latex-inline="\frac{dy}{dx}"></span>（导数）和 <span data-latex-inline="\int"></span>（积分）符号，这些符号的简洁性极大地促进了微积分在欧洲大陆的传播和发展。然而，早期微积分建立在<strong>无穷小量</strong>这一含糊的概念上，直到 19 世纪，奥古斯丁·路易·柯西和卡尔·魏尔斯特拉斯才通过极限理论，为导数和微分提供了严格的数学定义，彻底解决了“无穷小量”的逻辑争议。</p>
+    </div>
+
+    <h3>核心交互：割线逼近瞬时变化率</h3>
+    <p>导数的几何定义是<strong>切线斜率</strong>，它通过割线斜率的极限过程来精确捕获。割线斜率 <span data-latex-inline="\frac{f(x+h) - f(x)}{h}"></span> 代表了函数在 <span data-latex-inline="[x, x+h]"></span> 区间的平均变化率。当您在图中拖动滑块确定切点 <span data-latex-inline="x"></span> 时，图示的割线基于一个固定的微小 <span data-latex-inline="h"></span>。想象一下，当 <span data-latex-inline="h"></span> 逐渐趋近于零时，割线就会紧密地“吻合”曲线，最终转化为切线，其斜率即为该点的瞬时变化率。</p>
+
+    <div class="interactive-area">
+        <div id="derivative-plot" class="plot-container"></div>
+        <div class="controls">
+            <label for="point-x">选择切点 <span data-latex-inline="x"></span>:</label>
+            <input type="range" id="point-x" min="-4" max="4" value="1" step="0.1">
+            <span id="x-value-display">x = 1.0</span>
+            <p>观察切线和割线如何在高阶函数 <span data-latex-inline="f(x) = 0.5x^2+1"></span> 上逼近。</p>
+        </div>
+    </div>
+
+    <h3>数学定义：</h3>
+    <p data-katex="\text{f'(x)} = \lim_{h \to 0} \frac{f(x+h) - f(x)}{h}"></p>
+
+    <h3>定理与推论：罗尔定理 (Rolle's Theorem)</h3>
+    <div class="theorem-box">
+        <h4>罗尔定理 (Rolle's Theorem)</h4>
+        <p>罗尔定理是微分中值定理的一个特例。它指出，如果函数 <span data-latex-inline="f(x)"></span> 在闭区间 <span data-latex-inline="[a, b]"></span> 上连续，在开区间 <span data-latex-inline="(a, b)"></span> 内可导，并且函数在端点处的值相等（<span data-latex-inline="f(a) = f(b)"></span>），那么在开区间 <span data-latex-inline="(a, b)"></span> 内至少存在一点 <span data-latex-inline="c"></span>，使得该点的导数为零：</p>
+        <p data-katex="f'(c) = 0"></p>
+        <p>几何意义是：在函数曲线与水平线交于两点的情况下，曲线在两点之间至少有一个水平切线（即极值点）。</p>
+    </div>
+
+    <h3>定理演示：微分中值定理 (MVT)</h3>
+    <p>通过下方图表，改变区间端点 <span data-latex-inline="a"></span> 和 <span data-latex-inline="b"></span>，定理保证在 <span data-latex-inline="a"></span> 和 <span data-latex-inline="b"></span> 之间，一定存在一条与割线平行的切线（即导数值相等）。</p>
+    <div class="interactive-area">
+        <div id="mvt-plot" class="plot-container"></div>
+        <div class="controls">
+            <label for="mvt-a">选择端点 <span data-latex-inline="a"></span>:</label>
+            <input type="range" id="mvt-a" min="-4" max="1" value="-3" step="0.1">
+            <span id="mvt-a-display">a = -3.0</span>
+            <label for="mvt-b">选择端点 <span data-latex-inline="b"></span>:</label>
+            <input type="range" id="mvt-b" min="1.1" max="4" value="3" step="0.1">
+            <span id="mvt-b-display">b = 3.0</span>
+        </div>
+    </div>
+
+    <div class="exercise-section">
+        <h3>习题与解析</h3>
+        <p><strong>练习 1.1：</strong> 求函数 <span data-latex-inline="f(x) = 3x^2 - 5x"></span> 在 <span data-latex-inline="x=2"></span> 处的导数。</p>
+        <button class="solution-toggle" onclick="toggleSolution('deriv-ex1')">查看解析</button>
+        <div id="deriv-ex1" class="solution">
+            <p>解：首先使用导数基本公式求出一般导数：<span data-latex-inline="f'(x) = 6x - 5"></span>。这一表达式给出了曲线上任意一点的切线斜率。然后，代入特定点 <span data-latex-inline="x=2"></span>，得到 <span data-latex-inline="f'(2) = 6(2) - 5 = 12 - 5 = 7"></span>。因此，在该点的切线斜率为 7。</p>
+        </div>
+    </div>
+
+    <h3>挑战例题：洛必达法则的几何证明与应用</h3>
+    <div class="content-box">
+        <p>洛必达法则 (<span data-latex-inline="\text{L'Hôpital's Rule}"></span>) 是处理 <span data-latex-inline="\frac{0}{0}"></span> 或 <span data-latex-inline="\frac{\infty}{\infty}"></span> 不定式极限的强大工具。其几何原理可以追溯到广义中值定理，即 <strong>柯西中值定理</strong>。它告诉我们，在接近交点 <span data-latex-inline="a"></span> 附近，两个函数 <span data-latex-inline="f(x)"></span> 和 <span data-latex-inline="g(x)"></span> 的比值 <span data-latex-inline="\frac{f(x)}{g(x)}"></span> 约等于它们切线斜率的比值 <span data-latex-inline="\frac{f'(x)}{g'(x)}"></span>。</p>
+        <p><strong>例题：</strong> 计算极限 <span data-latex-inline="\lim_{x \to 0} \frac{\sin(x)}{x}"></span>。当 <span data-latex-inline="x \to 0"></span> 时，直接代入得到 <span data-latex-inline="\frac{0}{0}"></span> 不定式。</p>
+        <p>解析：使用洛必达法则，分别对分子和分母求导：<span data-latex-inline="\lim_{x \to 0} \frac{\cos(x)}{1}"></span>。代入 <span data-latex-inline="x=0"></span> 得到 <span data-latex-inline="\frac{\cos(0)}{1} = \frac{1}{1} = 1"></span>。图表显示 <span data-latex-inline="\sin(x)"></span> 的曲线在原点附近被直线 <span data-latex-inline="y=x"></span> (斜率为 1 的切线) 完美近似，因此极限为 1。</p>
+        <div id="deriv-challenge-plot" class="plot-container" style="min-height: 300px;"></div>
+    </div>
+</section>

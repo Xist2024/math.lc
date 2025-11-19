@@ -1,0 +1,72 @@
+<script>if(!document.getElementById("content-container")){window.location.href = "/#" + window.location.pathname.split("/").pop().replace(".html","");}</script>
+<section id="equation-solver" class="concept-module">
+    <h2>5. 一元 N 次方程求解器</h2>
+
+    <div class="content-box">
+        <p>本工具提供了一元一次、二次、三次及四次方程的精确（符号）解。请选择您想要求解的方程次数，并输入对应的系数。所有有理数解将以最简分数形式展示，无理数和复数解将以包含根号和虚数单位 $i$ 的形式展示。</p>
+        <p><strong>注意:</strong> 三次和四次方程的求根公式非常复杂，其符号解可能非常冗长，这是正常现象。</p>
+    </div>
+
+    <h3>交互工具：方程求解</h3>
+    <div class="solver-container">
+        <div class="solver-controls">
+            <label for="equation-degree">选择方程次数:</label>
+            <select id="equation-degree">
+                <option value="1">一次 (ax + b = 0)</option>
+                <option value="2" selected>二次 (ax² + bx + c = 0)</option>
+                <option value="3">三次 (ax³ + bx² + cx + d = 0)</option>
+                <option value="4">四次 (ax⁴ + bx³ + cx² + dx + e = 0)</option>
+            </select>
+        </div>
+
+        <div id="coefficient-inputs">
+            </div>
+
+        <button id="solve-equation-btn" class="precision-button">求解</button>
+    </div>
+
+    <div class="solver-results-box">
+        <h4>求解结果:</h4>
+        <div id="solver-results" class="polyfit-formula-output">
+            请选择方程次数并输入系数。
+        </div>
+    </div>
+</section>
+
+<style>
+    .solver-container {
+        padding: 20px;
+        border: 1px solid var(--border-color);
+        border-radius: 5px;
+        background-color: #f9f9f9;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+    .solver-controls, #coefficient-inputs {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        flex-wrap: wrap;
+    }
+    .solver-controls label, #coefficient-inputs label {
+        font-weight: bold;
+    }
+    .solver-controls select, #coefficient-inputs input {
+        padding: 8px;
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+        font-family: 'Times New Roman', Georgia, serif;
+    }
+    #coefficient-inputs input {
+        width: 60px;
+        text-align: center;
+    }
+    .solver-results-box {
+        margin-top: 25px;
+        padding: 20px;
+        border: 1px solid var(--primary-color);
+        background-color: #f0f8ff;
+        border-radius: 5px;
+    }
+</style>

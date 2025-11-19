@@ -1,0 +1,73 @@
+<script>if(!document.getElementById("content-container")){window.location.href = "/#" + window.location.pathname.split("/").pop().replace(".html","");}</script>
+<section id="differential" class="concept-module">
+    <h2>3. 微分 (Differential)：线性近似与误差</h2>
+
+    <h3>历史背景：从“无穷小”到“线性近似”</h3>
+    <div class="content-box">
+        <p>在牛顿和莱布尼茨的时代，微分 <span data-latex-inline="dy"></span> 被视为函数 <span data-latex-inline="\Delta y"></span> 的“主部”，是比 <span data-latex-inline="\Delta x"></span> 更高阶的无穷小量。然而，这种对“无穷小量”的操作方式缺乏严格的逻辑基础，被贝克莱主教等哲学家批评为“已故量之鬼魂”。</p>
+        <p>现代微积分中，微分 <span data-latex-inline="dy"></span> 被重新定义为<strong>线性近似</strong>。我们不再将 <span data-latex-inline="dx"></span> 视为一个无穷小的数，而是将其视为一个任意小的，非零的增量，而 <span data-latex-inline="dy"></span> 则是函数在切线上对应的变化。这种方法回避了对“无穷小量”的哲学争论，将微分的重点放在了局部线性化和误差估算的强大应用上。这种线性近似在物理建模、数值分析和金融工程中至关重要。</p>
+    </div>
+
+    <h3>核心交互：线性近似与误差</h3>
+    <p>微分 <span data-latex-inline="dy = f'(x) dx"></span> 是基于切线的变化，而 <span data-latex-inline="\Delta y = f(x+dx) - f(x)"></span> 是函数的实际变化。当您拖动 <span data-latex-inline="dx"></span> 滑块时，观察 <span data-latex-inline="dy"></span> 和 <span data-latex-inline="\Delta y"></span> 的差异。这个差异，即误差 <span data-latex-inline="\Delta y - dy"></span>，在 <span data-latex-inline="dx"></span> 较小时，其大小远小于 <span data-latex-inline="dx"></span> 本身，证明了线性近似的有效性。</p>
+
+    <div class="interactive-area">
+        <div id="differential-plot" class="plot-container"></div>
+        <div class="controls">
+            <label for="delta-x">选择 <span data-latex-inline="\Delta x"></span> (或 <span data-latex-inline="dx"></span>):</label>
+            <input type="range" id="delta-x" min="0.1" max="2" value="1" step="0.1">
+            <span id="dx-value-display">dx = 1.0</span>
+            <p>当 <span data-latex-inline="dx"></span> 减小时，红色的误差线 (<span data-latex-inline="\Delta y - dy"></span>) 会迅速收缩。</p>
+        </div>
+    </div>
+
+    <h3>数学关系：</h3>
+    <p data-katex="dy = f'(x) dx"></p>
+
+    <h3>定理与推论：泰勒多项式——超越线性近似</h3>
+    <div class="theorem-box">
+        <h4>泰勒多项式 (Taylor Polynomials) 的定义与应用</h4>
+        <p>线性近似只使用了函数在一点的零阶信息 (<span data-latex-inline="f(a)"></span>) 和一阶信息 (<span data-latex-inline="f'(a)"></span>)。泰勒多项式则是将这一思想推广，利用函数在同一点的<strong>高阶导数</strong>来构造多项式，从而在更大范围内逼近原函数。</p>
+        <p>1 阶泰勒多项式就是线性近似：<span data-latex-inline="P_1(x) = f(a) + f'(a)(x-a)"></span>。</p>
+        <p>高阶多项式：</p>
+        <p data-katex="P_n(x) = f(a) + f'(a)(x-a) + \frac{f''(a)}{2!}(x-a)^2 + \dots + \frac{f^{(n)}(a)}{n!}(x-a)^n"></p>
+    </div>
+
+    <p>通过改变阶数 <span data-latex-inline="n"></span>，观察高阶多项式 <span data-latex-inline="P_n(x)"></span> 如何更精确地逼近目标函数 <span data-latex-inline="f(x) = \sin(x)"></span>。随着阶数增加，泰勒曲线与正弦曲线重合的区域会不断扩大。</p>
+    <div class="interactive-area">
+        <div id="taylor-plot" class="plot-container"></div>
+        <div class="controls">
+            <label for="taylor-n">选择多项式阶数 <span data-latex-inline="n"></span>:</label>
+            <input type="range" id="taylor-n" min="1" max="5" value="3" step="2">
+            <span id="taylor-n-display">n = 3 (3阶)</span>
+            <p>注：此图是在 <span data-latex-inline="a=0"></span> 处展开的麦克劳林级数（<span data-latex-inline="\text{Maclaurin Series}"></span>）。</p>
+        </div>
+    </div>
+
+    <div class="exercise-section">
+        <h3>习题与解析</h3>
+        <p><strong>练习 3.1：</strong> 利用微分估算 <span data-latex-inline="\sqrt{9.03}"></span> 的值。已知 <span data-latex-inline="f(x) = \sqrt{x}"></span>，取 <span data-latex-inline="x=9"></span>，<span data-latex-inline="dx=0.03"></span>。</p>
+        <button class="solution-toggle" onclick="toggleSolution('diff-ex1')">查看解析</button>
+        <div id="diff-ex1" class="solution">
+            <p>解：线性近似的基础是 <span data-latex-inline="f(x+dx) \approx f(x) + f'(x) dx"></span>。<br><br>
+            首先求导数：<span data-latex-inline="f'(x) = \frac{1}{2\sqrt{x}}"></span>。<br><br>
+            在 <span data-latex-inline="x=9"></span> 处，<span data-latex-inline="f'(9) = \frac{1}{2\sqrt{9}} = \frac{1}{6}"></span>。<br><br>
+            微分项：<span data-latex-inline="dy = f'(9) dx = \frac{1}{6} (0.03) = 0.005"></span>。<br><br>
+            近似值：<span data-latex-inline="\sqrt{9.03} \approx f(9) + dy = 3 + 0.005 = 3.005"></span>。实际精确值约为 3.004995，误差极小。</p>
+        </div>
+    </div>
+
+    <h3>深入理解：链式法则的几何解释</h3>
+    <div class="content-box">
+        <p>链式法则 <span data-latex-inline="\frac{dy}{dx} = \frac{dy}{du} \cdot \frac{du}{dx}"></span> 是复合函数求导的核心规则。在微分的语言中，它具有非常直观的几何意义。如果 <span data-latex-inline="y"></span> 随 <span data-latex-inline="u"></span> 变化，而 <span data-latex-inline="u"></span> 又随 <span data-latex-inline="x"></span> 变化，那么 <span data-latex-inline="y"></span> 随 <span data-latex-inline="x"></span> 的变化率（<span data-latex-inline="\frac{dy}{dx}"></span>）就是两个独立变化率的乘积。</p>
+        <p>我们可以将 <span data-latex-inline="dy \approx \frac{dy}{du} du"></span> 和 <span data-latex-inline="du \approx \frac{du}{dx} dx"></span> 视为线性近似，代入可得 <span data-latex-inline="dy \approx \frac{dy}{du} (\frac{du}{dx} dx)"></span>。这表明，<span data-latex-inline="y"></span> 的微小变化是两个线性过程累积的结果。在实际应用中，例如计算三维空间中曲线的坡度，链式法则将复杂问题分解为多步简单的局部变化率计算。</p>
+    </div>
+
+    <h3>挑战例题：圆柱体积误差传递与不确定度分析</h3>
+    <div class="content-box">
+        <p>微分在测量科学中用于不确定度分析（<span data-latex-inline="\text{Propagation of Error}"></span>）。如果对圆柱的半径 $r$ 和高 $h$ 的测量都存在 <span data-latex-inline="\pm 1\%"></span> 的相对误差，我们如何估算体积 $V$ の最大相对误差？</p>
+        <p>圆柱体积公式：<span data-latex-inline="\text{V = \pi r^2 h}"></span>。首先求全微分：<span data-latex-inline="dV = \frac{\partial V}{\partial r} dr + \frac{\partial V}{\partial h} dh = 2\pi rh dr + \pi r^2 dh"></span>。</p>
+        <p>解析：将全微分表达式除以 <span data-latex-inline="V"></span>，得到相对误差：<span data-latex-inline="\frac{dV}{V} = 2\frac{dr}{r} + \frac{dh}{h}"></span>。<br>
+        最大相对误差是所有相对误差绝对值之和：<span data-latex-inline="\text{Max Error} = 2|\frac{dr}{r}| + |\frac{dh}{h}|"></span>。由于 <span data-latex-inline="|\frac{dr}{r}| = 0.01"></span> 且 <span data-latex-inline="|\frac{dh}{h}| = 0.01"></span>，最大相对误差为 <span data-latex-inline="2(0.01) + 0.01 = 0.03"></span>，即 <span data-latex-inline="3\%"></span>。半径的误差对体积的影响是高度的两倍。</p>
+    </div>
+</section>

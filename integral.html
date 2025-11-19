@@ -1,0 +1,75 @@
+<script>if(!document.getElementById("content-container")){window.location.href = "/#" + window.location.pathname.split("/").pop().replace(".html","");}</script>
+<section id="integral" class="concept-module">
+    <h2>4. 定积分 (Integral)：面积的累加与求和</h2><br>
+
+    <h3>历史背景：穷竭法、极限与微积分基本定理</h3>
+    <div class="content-box">
+        <p>积分思想的历史比微分更悠久。古希腊的<strong>阿基米德</strong>（<span data-latex-inline="\text{Archimedes}"></span>）使用著名的<strong>穷竭法</strong>，通过在曲线内部和外部不断画内接和外切的多边形来逼近曲线下方的面积。这本质上就是<strong>黎曼和</strong>（<span data-latex-inline="\text{Riemann Sum}"></span>）和积分极限思想的早期形式。</p>
+        <p>到了 17 世纪，牛顿和莱布尼茨通过发现<strong>微积分基本定理</strong>（<span data-latex-inline="\text{FTC}"></span>）实现了数学上的革命。在此之前，求导和求面积是两个独立的、困难的数学问题。FTC 证明了它们是<strong>互逆操作</strong>，将求复杂的曲线下面积问题，转化为了求导数的逆过程——<strong>求原函数</strong>的简单代数问题。这使得微积分成为了一个统一且高效的工具。</p>
+    </div>
+
+    <h3>核心交互：黎曼和逼近面积</h3>
+    <p>定积分 <span data-latex-inline="\int_{a}^{b} f(x) dx"></span> 的几何意义是函数曲线与 <span data-latex-inline="x"></span> 轴之间，在区间 <span data-latex-inline="[a, b]"></span> 上的带符号面积。黎曼和通过将区间划分为 <span data-latex-inline="n"></span> 个小矩形，并对这些矩形面积求和来近似总面积。观察矩形数量 <span data-latex-inline="n"></span> 增加时，黎曼和 <span data-latex-inline="\sum_{i=1}^{n} f(x_i^*) \Delta x"></span> 如何逼近真实面积。</p>
+
+    <div class="interactive-area">
+        <div id="integral-plot" class="plot-container"></div>
+        <div class="controls">
+            <label for="num-rectangles">矩形数量 (<span data-latex-inline="n"></span>):</label>
+            <input type="range" id="num-rectangles" min="4" max="50" value="10" step="1">
+            <span id="n-value-display">n = 10</span>
+        </div>
+    </div>
+
+    <h3>数学定义 (黎曼和):</h3>
+    <p data-katex="\int_{a}^{b} f(x) dx = \lim_{n \to \infty} \sum_{i=1}^{n} f(x_i^*) \Delta x"></p>
+
+    <h3>定理与性质：定积分的奇偶性</h3>
+    <div class="theorem-box">
+        <h4>定积分的奇偶性性质</h4>
+        <p>如果函数 <span data-latex-inline="f(x)"></span> 在对称区间 <span data-latex-inline="[-a, a]"></span> 上连续，利用奇偶性可以简化积分计算：</p>
+        <ul>
+            <li>如果 <span data-latex-inline="f(x)"></span> 是<strong>偶函数</strong>（<span data-latex-inline="f(-x) = f(x)"></span>），图像关于 <span data-latex-inline="y"></span> 轴对称：<p data-katex="\int_{-a}^{a} f(x) dx = 2 \int_{0}^{a} f(x) dx"></p></li>
+            <li>如果 <span data-latex-inline="f(x)"></span> 是<strong>奇函数</strong>（<span data-latex-inline="f(-x) = -f(x)"></span>），图像关于原点对称：<p data-katex="\int_{-a}^{a} f(x) dx = 0"></p></li>
+        </ul>
+        <p>这些性质在物理学（如质心计算）和概率论中非常实用，能显著减少计算量。</p>
+    </div>
+
+    <h3>定理演示：积分中值定理</h3>
+    <div class="theorem-box">
+        <h4>积分中值定理 (Mean Value Theorem for Integrals)</h4>
+        <p>该定理是平均值概念在微积分中的体现。如果函数 <span data-latex-inline="f(x)"></span> 在闭区间 <span data-latex-inline="[a, b]"></span> 上连续，那么在 <span data-latex-inline="[a, b]"></span> 上至少存在一点 <span data-latex-inline="c"></span>，使得由高度 <span data-latex-inline="f(c)"></span> 构成的矩形面积正好等于曲线下方的积分面积。</p>
+        <p data-katex="\int_{a}^{b} f(x) dx = f(c)(b - a) \quad \text{或} \quad f_{\text{avg}} = \frac{1}{b-a} \int_{a}^{b} f(x) dx"></p>
+    </div>
+
+    <p>通过下方图表，观察平均值 <span data-latex-inline="f_{\text{avg}}"></span> 确定的矩形面积如何精确地与曲线下的积分面积相等。函数 <span data-latex-inline="f(x) = 2 + \cos(\pi x/4)"></span> 在区间 <span data-latex-inline="[1, 4]"></span> 上的平均值即为 <span data-latex-inline="f_{\text{avg}}"></span>。</p>
+    <div class="interactive-area">
+        <div id="mvti-plot" class="plot-container"></div>
+        <div class="controls">
+            <p>平均值 $f_{\text{avg}}$ 形成的矩形（绿色填充区域）与积分（红色曲线下的面积）相等。</p>
+            <span id="mvti-avg-display">f_avg: N/A</span>
+        </div>
+    </div>
+
+    <div class="exercise-section">
+        <h3>习题与解析</h3>
+        <p><strong>练习 4.1：</strong> 求定积分 <span data-latex-inline="\int_{0}^{2} (x^3 + 1) dx"></span> 的值。</p>
+        <button class="solution-toggle" onclick="toggleSolution('int-ex1')">查看解析</button>
+        <div id="int-ex1" class="solution">
+            <p>解：根据微积分基本定理，我们首先求出原函数 <span data-latex-inline="F(x) = \frac{1}{4}x^4 + x"></span>。<br><br>
+            然后，计算 <span data-latex-inline="F(2) - F(0)"></span>。<br><br>
+            <span data-latex-inline="F(2) = \frac{1}{4}(2^4) + 2 = 4 + 2 = 6"></span>。<br><br>
+            <span data-latex-inline="F(0) = \frac{1}{4}(0^4) + 0 = 0"></span>。<br><br>
+            定积分的值为 <span data-latex-inline="6 - 0 = 6"></span>。</p>
+        </div>
+    </div>
+
+    <h3>挑战例题：积分的应用：曲线长度 (Arc Length)</h3>
+    <div class="content-box">
+        <p>定积分是求体积、做功、计算质心和计算曲线长度的核心工具。求函数 <span data-latex-inline="y = \frac{2}{3}x^{3/2}"></span> 在区间 <span data-latex-inline="[0, 3]"></span> 上的弧长 <span data-latex-inline="L"></span>。</p>
+        <p>弧长公式：<span data-latex-inline="L = \int_{a}^{b} \sqrt{1 + \left(\frac{dy}{dx}\right)^2} dx"></span></p>
+        <p>解析：<br>
+            首先求导数：<span data-latex-inline="\frac{dy}{dx} = x^{1/2}"></span>。<br>
+            平方并代入公式：<span data-latex-inline="L = \int_{0}^{3} \sqrt{1 + x} dx"></span>。<br>
+            使用换元法（<span data-latex-inline="u = 1+x"></span>）进行积分，最终计算得：<span data-latex-inline="L = \frac{2}{3} (4^{3/2} - 1^{3/2}) = \frac{14}{3}"></span>。</p>
+    </div>
+</section>
