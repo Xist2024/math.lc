@@ -1,20 +1,20 @@
 /**
  * =================================================================
- * script.js - 微积分交互式学习中心的核心逻辑 (性能优化完整版)
+ * script.js - Math Learning Center Core Logic (Final Optimized Version)
  * -----------------------------------------------------------------
- *
- * 修改说明：
- * 已添加动态脚本加载逻辑 (Lazy Loading)，以配合 index.html 的性能优化。
- * Plotly 和 BigNumber.js 现在仅在特定页面被访问时才会加载。
+ * * Update Log:
+ * 1. Implemented Lazy Loading for 'Plotly' and 'BigNumber.js' to improve initial load speed (LCP).
+ * 2. Fixed Plotly version to v2.27.0 to resolve console warnings.
+ * 3. Added UI blocking (loading state) during high-precision calculations to improve UX.
  *
  * =================================================================
  */
 
-// --- 1. 全局变量和函数定义 ---
+// --- 1. Global Variables & Math Functions ---
 
 const contentContainer = document.getElementById('content-container');
 
-// 核心数学函数定义
+// Core Math Functions for Plotting
 const f_deriv = x => 0.5 * x * x + 1;
 const fPrime_deriv = x => x;
 const f_mvt = x => x * x * x - 6 * x * x + 5;
@@ -31,43 +31,41 @@ const taylorPolynomial = (x, n) => {
     return p;
 };
 const f_integral = x => 2 + Math.cos(x * Math.PI / 4);
-const integral_a = 0,
-    integral_b = 5;
+const integral_a = 0, integral_b = 5;
 const x_vals_default = Array.from({ length: 101 }, (_, i) => -5 + i * 0.1);
 const y_vals_deriv = x_vals_default.map(f_deriv);
 
 
-// --- 2. 动态资源加载器 (新增模块) ---
+// --- 2. Dynamic Resource Loader (Fixes 'Unused JS' & 'Render Blocking') ---
 
 const loadedLibraries = new Set();
 
 /**
- * 通用脚本加载函数
- * @param {string} url - 脚本地址
- * @param {string} globalName - 脚本加载后在 window 下的全局变量名 (用于检查是否已存在)
+ * Dynamically loads a script file.
+ * @param {string} url - The URL of the script.
+ * @param {string} globalName - The global variable name (e.g., 'Plotly') to check existence.
  */
 async function loadLibrary(url, globalName) {
-    // 1. 如果已经记录加载过，直接返回
+    // If tracked as loaded, skip
     if (loadedLibraries.has(url)) return;
 
-    // 2. 如果全局变量已存在 (可能是从其他地方加载的)，也标记为已加载
+    // If global variable exists (maybe loaded by other means), mark as loaded and skip
     if (globalName && window[globalName]) {
         loadedLibraries.add(url);
         return;
     }
 
-    // 3. 动态创建 script 标签加载
     return new Promise((resolve, reject) => {
         const script = document.createElement('script');
         script.src = url;
         script.async = true;
         script.onload = () => {
-            console.log(`Library loaded: ${globalName || url}`);
+            console.log(`[LazyLoad] Library loaded: ${globalName || url}`);
             loadedLibraries.add(url);
             resolve();
         };
         script.onerror = () => {
-            console.error(`Failed to load library: ${url}`);
+            console.error(`[LazyLoad] Failed to load library: ${url}`);
             reject(new Error(`Failed to load ${url}`));
         };
         document.head.appendChild(script);
@@ -75,23 +73,24 @@ async function loadLibrary(url, globalName) {
 }
 
 /**
- * 根据页面 ID 判断并加载所需的库
+ * Loads specific libraries based on the current page ID.
  */
 async function loadRequiredLibraries(pageId) {
-    // 需要 BigNumber.js 的页面
+    // 1. BigNumber.js: Only for Precision Calculator
     if (pageId === 'precision-calc') {
         await loadLibrary('https://cdn.jsdelivr.net/npm/bignumber.js/bignumber.min.js', 'BigNumber');
     }
 
-    // 需要 Plotly.js 的页面 (可视化图表类)
+    // 2. Plotly.js: Only for visualization pages
+    // Using v2.27.0 to fix 'outdated version' warning in Lighthouse
     const plotlyPages = ['derivative', 'limits', 'differential', 'integral', 'polyfit'];
     if (plotlyPages.includes(pageId)) {
-        await loadLibrary('https://cdn.plot.ly/plotly-latest.min.js', 'Plotly');
+        await loadLibrary('https://cdn.plot.ly/plotly-2.27.0.min.js', 'Plotly');
     }
 }
 
 
-// --- 3. 页面加载和初始化核心逻辑 ---
+// --- 3. Page Loading & Initialization Logic ---
 
 function renderAllKatex() {
     if (typeof katex === 'undefined') return;
@@ -127,6 +126,7 @@ function relayoutPlots(plotIds) {
     setTimeout(() => {
         plotIds.forEach(id => {
             const plotDiv = document.getElementById(id);
+            // Ensure Plotly is loaded before calling its methods
             if (plotDiv && typeof Plotly !== 'undefined' && plotDiv._fullLayout) {
                 Plotly.relayout(plotDiv, { autosize: true });
             }
@@ -153,8 +153,7 @@ async function loadPage(pageUrl) {
     try {
         const pageId = pageUrl.split('.')[0];
         
-        // [核心修改] 在获取 HTML 之前，先异步加载该页面需要的库
-        // 这确保了当 HTML 插入且脚本开始执行时，Plotly 或 BigNumber 已经就绪
+        // [Optimization] Preload required libraries BEFORE fetching HTML content
         await loadRequiredLibraries(pageId);
 
         const response = await fetch(pageUrl);
@@ -172,7 +171,7 @@ async function loadPage(pageUrl) {
 }
 
 
-// --- 4. 事件监听和程序入口 ---
+// --- 4. Event Listeners & Entry Point ---
 
 document.addEventListener('DOMContentLoaded', () => {
     const hamburgerBtn = document.getElementById('hamburger-btn');
@@ -214,7 +213,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // =================================================================
-// --- 方程求解器 ---
+// --- Equation Solver Module ---
 // =================================================================
 const EquationSolvers = {
     TOLERANCE: 1e-9,
@@ -369,7 +368,7 @@ function initEquationSolver() {
 }
 
 // =================================================================
-// --- 其他模块初始化函数 ---
+// --- Other Modules Initialization (Plots) ---
 // =================================================================
 
 function initDerivativePlot() {
@@ -392,6 +391,7 @@ function initPolyfit() {
     const t=document.getElementById("polyfit-terms"),e=document.getElementById("polyfit-instruction"),o=Array.from({length:6},(t,e)=>document.getElementById(`poly-a${e+1}`)),a=Array.from({length:6},(t,e)=>document.getElementById(`wrapper-a${e+1}`));const n=()=>{const o=parseInt(t.value);a.forEach((t,e)=>{t.style.display=e<o?"block":"none"});const n=Array.from({length:o},(t,e)=>`a_{${e+1}}`).join(", ");e.innerHTML=`请输入数列的前 ${o} 项 (<span data-latex-inline="${n}"></span>):`,renderAllKatex(),calculatePolyfit()};t.addEventListener("change",n),o.forEach(t=>t.addEventListener("input",calculatePolyfit)),n()}
 function generalizedInterpolate(t){const e=t.length;if(e<2)return{formula:"a_n = "+(t[0]||"..."),polynomialFn:e=>t[0]||0};const o=t.map((t,e)=>({x:e+1,y:t})),a=o.map(t=>t.y);for(let t=1;t<e;t++)for(let n=e-1;n>=t;n--)a[n]=(a[n]-a[n-1])/(o[n].x-o[n-t].x);const n=t=>{let e=a[0],n=1;for(let l=1;l<o.length;l++)n*=t-o[l-1].x,e+=n*a[l];return e};let l="a_n = "+a[0].toFixed(3);for(let t=1;t<e;t++){const e=a[t];if(Math.abs(e)<1e-9)continue;l+=(e>0?" + ":" - ")+Math.abs(e).toFixed(3);for(let o=0;o<t;o++)l+=`(n - ${o+1})`}return{formula:l,polynomialFn:n}}
 window.calculatePolyfit=function(){const t=parseInt(document.getElementById("polyfit-terms").value),e=[];for(let o=1;o<=t;o++){const t=parseFloat(document.getElementById(`poly-a${o}`).value);if(isNaN(t))return void(document.getElementById("polyfitFormulaOutput").textContent="请确保所有输入均为数字。");e.push(t)}const o=generalizedInterpolate(e);katex.render(o.formula,document.getElementById("polyfitFormulaOutput"),{throwOnError:!1,displayMode:!0,trust:!0});const a=[];for(let n=1;n<=5;n++)a.push(Math.round(o.polynomialFn(t+n)));const n=`a_${t+1} 至 a_${t+5}：${a.join(", ")}`;document.getElementById("polyfitPredictionsOutput").textContent=n};
+
 function setupCalculator() {
     const calcDisplay = document.getElementById('calc-display');
     let currentInput = '0', previousInput = '', operator = null, waitingForSecondOperand = false;
@@ -451,27 +451,48 @@ function setupCalculator() {
     document.querySelectorAll('.calculator-grid button').forEach(button => { button.onclick = () => handleButtonClick(button); });
     updateDisplay();
 }
+
+// [UX Update] Precision Calculator with Loading State
 function initPrecisionCalculator() {
     const precisionInput = document.getElementById('precision-digits');
     const sqrtInput = document.getElementById('sqrt-input');
     const outputArea = document.getElementById('precision-output');
     const statusDiv = document.getElementById('precision-status');
+    
     const setStatus = (message, isError = false) => {
         statusDiv.textContent = message;
         statusDiv.style.color = isError ? 'var(--secondary-color)' : 'var(--theorem-color)';
     };
+    
     const calculate = async (task, value) => {
         const digits = parseInt(precisionInput.value);
         let max_digits = 15000;
         let error_msg = `错误：精度必须在 10 到 ${max_digits} 之间。`;
-        if (task === 'pi' || task === 'e') { max_digits = 2000; error_msg = `错误：计算 ${task} 的精度必须在 10 到 ${max_digits} 之间。`; }
-        if (isNaN(digits) || digits < 10 || digits > max_digits) { setStatus(error_msg, true); return; }
-        setStatus('正在计算中，请稍候...', false);
+        
+        if (task === 'pi' || task === 'e') { 
+            max_digits = 2000; 
+            error_msg = `错误：计算 ${task} 的精度必须在 10 到 ${max_digits} 之间。`; 
+        }
+        
+        if (isNaN(digits) || digits < 10 || digits > max_digits) { 
+            setStatus(error_msg, true); 
+            return; 
+        }
+
+        // 1. Lock UI and set cursor to wait
+        const buttons = document.querySelectorAll('.precision-button');
+        buttons.forEach(btn => btn.disabled = true);
+        document.body.style.cursor = 'wait';
+        
+        setStatus('正在计算中，请稍候... (高精度计算可能会卡顿几秒)', false);
         outputArea.value = 'Calculating...';
+        
+        // 2. Use setTimeout to allow UI to update before blocking calculation starts
         setTimeout(async () => {
             try {
                 const startTime = performance.now();
                 BigNumber.config({ DECIMAL_PLACES: digits + 5, POW_PRECISION: digits + 5 });
+                
                 let result = '';
                 if (task === 'sqrt') {
                     const num = parseInt(value);
@@ -480,33 +501,44 @@ function initPrecisionCalculator() {
                 } else if (task === 'pi') result = await highPrecisionPi(digits);
                 else if (task === 'e') result = await highPrecisionE(digits);
                 else if (task === 'phi') result = await highPrecisionPhi(digits);
+                
                 const duration = ((performance.now() - startTime) / 1000).toFixed(2);
                 outputArea.value = result;
                 setStatus(`计算完成！耗时 ${duration} 秒。`, false);
             } catch (e) {
                 setStatus(`计算出错: ${e.message}`, true);
                 outputArea.value = 'Error.';
+            } finally {
+                // 3. Unlock UI and restore cursor
+                buttons.forEach(btn => btn.disabled = false);
+                document.body.style.cursor = 'default';
             }
         }, 50);
     };
+
     document.getElementById('calc-sqrt-btn').onclick = () => calculate('sqrt', sqrtInput.value);
     document.getElementById('calc-pi-btn').onclick = () => calculate('pi');
     document.getElementById('calc-e-btn').onclick = () => calculate('e');
     document.getElementById('calc-phi-btn').onclick = () => calculate('phi');
+    
     document.getElementById('download-result-btn').onclick = () => {
         const text = outputArea.value;
-        if (!text || text.startsWith('请选择') || text.startsWith('Calculating')) { setStatus('没有可下载的结果。', true); return; }
+        if (!text || text.startsWith('请选择') || text.startsWith('Calculating')) { 
+            setStatus('没有可下载的结果。', true); 
+            return; 
+        }
         const blob = new Blob([text], { type: 'text/plain' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
         a.download = `high_precision_result.txt`;
         document.body.appendChild(a);
-a.click();
+        a.click();
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
     };
 }
+
 async function highPrecisionSqrt(number, precision) {
     BigNumber.config({ DECIMAL_PLACES: precision + 5 });
     const S = new BigNumber(number);
@@ -547,5 +579,4 @@ async function highPrecisionPhi(precision) {
     const sqrt5 = await highPrecisionSqrt(5, precision + 5);
     const phi = new BigNumber(1).plus(sqrt5).div(2);
     return phi.toFixed(precision);
-
 }
